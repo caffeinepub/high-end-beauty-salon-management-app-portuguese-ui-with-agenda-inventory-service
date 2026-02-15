@@ -1,0 +1,23 @@
+{
+  "frontend/src/index.css": "Global styles with premium gold/black/white OKLCH color system, custom typography, and subtle texture overlay utility class for elegant salon aesthetic.",
+  "frontend/src/App.tsx": "Main app component managing page navigation state between the 4 primary sections (Agenda, Estoque, Serviços, Clientes) with toast notifications.",
+  "frontend/src/components/layout/AppLayout.tsx": "Premium app shell with dark sidebar navigation, brand header, main content area, and footer with social links and caffeine.ai attribution.",
+  "frontend/src/components/brand/BrandHeader.tsx": "Header component displaying salon monogram and wordmark logos from static assets with elegant styling.",
+  "frontend/src/pages/AgendaDeHojePage.tsx": "Daily appointment management page with date navigation, appointment list, and create dialog for scheduling services.",
+  "frontend/src/pages/ControleDeEstoquePage.tsx": "Inventory control page with product list, search/filter, low-stock alerts, and stock adjustment functionality.",
+  "frontend/src/pages/CatalogoDeServicosPage.tsx": "Service catalog page displaying services with Brazilian currency formatting, duration display, and active/inactive toggle.",
+  "frontend/src/pages/FidelidadeClientesPage.tsx": "Client loyalty page with searchable client list and detail panel showing preferences, allergies, and visit history.",
+  "frontend/src/components/agenda/AppointmentFormDialog.tsx": "Modal form for creating new appointments with client selection, service selection, time picker, and notes field.",
+  "frontend/src/components/agenda/AppointmentListItem.tsx": "Card component displaying appointment details including time, client, service, status badge, and notes.",
+  "frontend/src/components/estoque/ProductFormDialog.tsx": "Modal form for adding new products to inventory with validation for all required fields including quantity and minimum threshold.",
+  "frontend/src/components/estoque/StockAdjustDialog.tsx": "Modal for adjusting product quantities with increase/decrease options, amount input, reason field, and negative quantity prevention; fixed to pass object with id and newQuantity to updateQuantity mutation.",
+  "frontend/src/components/servicos/ServiceFormDialog.tsx": "Modal form for adding new services with name, description, duration in minutes, and price in Brazilian Real.",
+  "frontend/src/components/clientes/ClientFormDialog.tsx": "Modal form for adding new clients with name, contact info, preferences, and allergy information fields.",
+  "frontend/src/components/clientes/ClientDetailPanel.tsx": "Tabbed panel showing client information (preferences, allergies) and appointment history with formatted dates in Portuguese.",
+  "frontend/src/hooks/useQueries.ts": "Minimal queries file with backend health check; feature-specific hooks are in separate files per domain.",
+  "frontend/src/hooks/useAgenda.ts": "React Query hooks for fetching appointments by date and creating new appointments with automatic cache invalidation; fixed to use Status enum values correctly.",
+  "frontend/src/hooks/useEstoque.ts": "React Query hooks for fetching products and mutations for adding products and updating quantities.",
+  "frontend/src/hooks/useServicos.ts": "React Query hooks for fetching services (all and active only) with toggleServiceStatus function exposed directly from main hook and separate mutations hook for adding services.",
+  "frontend/src/hooks/useClientes.ts": "React Query hooks for fetching clients and mutation for adding new clients to the system.",
+  "frontend/index.html": "HTML entry point with Portuguese language attribute, updated title, and meta description for the salon management app."
+}

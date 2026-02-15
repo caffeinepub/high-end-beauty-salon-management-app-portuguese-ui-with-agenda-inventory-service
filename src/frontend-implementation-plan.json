@@ -1,0 +1,342 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "App de Gestão de Salão (PT-BR) — Agenda, Estoque, Serviços e Fidelidade",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Implementar a navegação principal persistente com 4 seções (Agenda, Estoque, Serviços, Fidelidade) e telas com títulos/empty-state em português.",
+      "acceptanceCriteria": [
+        "App has a persistent main navigation (sidebar or top nav) with exactly the 4 primary entries named in Portuguese: \"Agenda de Hoje\", \"Controle de Estoque\", \"Catálogo de Serviços\", \"Fidelidade Clientes\".",
+        "Each section renders its own screen with a clear title and empty-state when no data exists.",
+        "All visible UI labels, buttons, headings, and helper text are in Portuguese (no English strings in the UI)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "create",
+          "description": "Criar o shell do app com layout premium e navegação persistente contendo exatamente as 4 entradas: \"Agenda de Hoje\", \"Controle de Estoque\", \"Catálogo de Serviços\", \"Fidelidade Clientes\". Usar componentes do shadcn-ui para navegação/layout (ex.: sidebar, buttons, separators) e garantir rotas internas/estado de seleção. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/routes.tsx",
+          "operation": "create",
+          "description": "Definir a informação de arquitetura/roteamento das 4 telas principais e garantir que cada uma renderize título e empty-state em PT-BR (sem criar páginas extras não requisitadas)."
+        },
+        {
+          "path": "frontend/src/pages/AgendaDeHojePage.tsx",
+          "operation": "create",
+          "description": "Criar a tela \"Agenda de Hoje\" com título e empty-state em português (ex.: \"Nenhum agendamento para este dia\")."
+        },
+        {
+          "path": "frontend/src/pages/ControleDeEstoquePage.tsx",
+          "operation": "create",
+          "description": "Criar a tela \"Controle de Estoque\" com título e empty-state em português (ex.: \"Nenhum produto cadastrado\")."
+        },
+        {
+          "path": "frontend/src/pages/CatalogoDeServicosPage.tsx",
+          "operation": "create",
+          "description": "Criar a tela \"Catálogo de Serviços\" com título e empty-state em português (ex.: \"Nenhum serviço cadastrado\")."
+        },
+        {
+          "path": "frontend/src/pages/FidelidadeClientesPage.tsx",
+          "operation": "create",
+          "description": "Criar a tela \"Fidelidade Clientes\" com título e empty-state em português (ex.: \"Nenhum cliente cadastrado\")."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Atualizar o atributo lang para pt-BR e revisar metadados/título para manter consistência com UI em português."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Construir a UI da agenda diária com criação/edição/cancelamento de agendamentos, seleção/criação de cliente, seleção de serviços, navegação por data e indicadores de status.",
+      "acceptanceCriteria": [
+        "User can create an appointment for a selected date/time with a client and one or more services.",
+        "Today screen shows only appointments for the selected day, ordered by time, with clear status indicators.",
+        "User can update an appointment (time, services, notes, status) and cancel/delete it; changes persist after reload.",
+        "Empty-state and validation messages are in Portuguese and guide the user to create the first appointment."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AgendaDeHojePage.tsx",
+          "operation": "modify",
+          "description": "Implementar lista/linha do tempo do dia selecionado (padrão: hoje), ordenada por horário, com indicadores de status e navegação básica de data (anterior/próximo/hoje). Usar componentes do shadcn-ui para listas, badges, cards, dialogs e formulários. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/agenda/AppointmentFormDialog.tsx",
+          "operation": "create",
+          "description": "Criar modal de criação/edição de agendamento com validações em PT-BR: cliente (seleção e opção de cadastrar rápido), serviços (multi-seleção conforme catálogo ativo), horário, duração, observações e status. Usar componentes do shadcn-ui (Dialog, Form, Input, Select/Combobox, Textarea, Buttons). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/agenda/AppointmentListItem.tsx",
+          "operation": "create",
+          "description": "Criar item visual premium para exibir agendamento (cliente, horário, duração, serviços, status atual) com ações de editar/cancelar e acesso ao detalhe. Usar componentes do shadcn-ui para botões/menus/badges. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/agenda/useAgenda.ts",
+          "operation": "create",
+          "description": "Criar hook para carregar e mutar agendamentos via backendInterface (ex.: obter agendamentos do dia/hoje, criar/atualizar/cancelar) usando React Query; incluir mapeamento de status para rótulos em português e normalização de datas (timezone local)."
+        },
+        {
+          "path": "frontend/src/api/backendClient.ts",
+          "operation": "create",
+          "description": "Criar um cliente/adapter de chamadas ao backend que abstraia as operações de agenda (incluindo suporte planejado a múltiplos serviços por agendamento conforme o requisito) e centralize conversões de tipos (bigint/Time) para o frontend."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Construir a UI de estoque com CRUD de produtos, destaque de baixo estoque, busca/filtro e ajustes de quantidade com motivo e histórico de movimentações.",
+      "acceptanceCriteria": [
+        "User can add/edit/delete products and see a list with current quantity and low-stock highlighting when below threshold.",
+        "User can perform stock adjustments (increase/decrease) with a reason; adjustments are recorded in a movement history view per product.",
+        "Quantities cannot go negative; UI prevents invalid operations and shows Portuguese validation errors.",
+        "Inventory list supports searching by name/brand and filtering by low-stock."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ControleDeEstoquePage.tsx",
+          "operation": "modify",
+          "description": "Implementar lista de produtos com busca (nome/marca), filtro \"baixo estoque\", destaque visual quando quantidade < mínimo e ações de adicionar/editar/excluir/ajustar estoque. Usar componentes do shadcn-ui para Table, Input, Checkbox/Switch, Dialog/Drawer e Buttons. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/estoque/ProductFormDialog.tsx",
+          "operation": "create",
+          "description": "Modal para criar/editar produto (nome, marca, categoria, unidade, quantidade atual, mínimo, observações do fornecedor) com validações em PT-BR e prevenção de números inválidos. Usar componentes do shadcn-ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/estoque/StockAdjustDialog.tsx",
+          "operation": "create",
+          "description": "Modal para ajuste de estoque (aumentar/diminuir), com campo de motivo e validação que impede quantidade final negativa; exibir feedback de erro em português. Usar componentes do shadcn-ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/estoque/ProductMovementHistory.tsx",
+          "operation": "create",
+          "description": "Componente de visualização do histórico de movimentações por produto (timestamp, variação, motivo). Integrar para consumir a capacidade de histórico assim que disponível no backend; enquanto isso, estruturar UI/estado para não quebrar a tela e mostrar empty-state em PT-BR. Usar componentes do shadcn-ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/estoque/useEstoque.ts",
+          "operation": "create",
+          "description": "Hook para carregar produtos, aplicar busca/filtros e executar mutações (criar/editar/excluir, ajustar quantidade) via backendClient com React Query; incluir mensagens e validações em português."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Construir a UI do catálogo de serviços com criação/edição/arquivamento, listagem pesquisável e formatação monetária PT-BR; garantir seleção apenas de serviços ativos no fluxo de agendamento.",
+      "acceptanceCriteria": [
+        "User can add/edit/archive services and view them in a searchable list.",
+        "Each service displays name, duration, and price formatted for Brazilian Portuguese locale (e.g., R$).",
+        "Only active services are selectable in appointment creation/edit flows.",
+        "Changes in the service catalog are reflected immediately in appointment service pickers."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/CatalogoDeServicosPage.tsx",
+          "operation": "modify",
+          "description": "Implementar listagem pesquisável de serviços com exibição de nome/duração/preço (formatado para pt-BR, ex.: R$), e ações para criar/editar/arquivar (ativo/inativo). Usar componentes do shadcn-ui para Table, Badge, Switch, Dialog e Inputs. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/servicos/ServiceFormDialog.tsx",
+          "operation": "create",
+          "description": "Modal para criar/editar serviço com nome, descrição, duração e preço; validações e textos em PT-BR. Usar componentes do shadcn-ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/servicos/useServicos.ts",
+          "operation": "create",
+          "description": "Hook para carregar e mutar serviços (incluindo ativar/desativar) via backendClient com React Query; expor lista filtrada apenas de serviços ativos para ser consumida pelo formulário de agendamento."
+        },
+        {
+          "path": "frontend/src/components/agenda/AppointmentFormDialog.tsx",
+          "operation": "modify",
+          "description": "Integrar o picker de serviços para usar apenas serviços ativos vindos do hook do catálogo e reagir imediatamente a alterações (invalidate/refetch) para refletir mudanças no catálogo. Usar componentes do shadcn-ui. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Construir a UI de fidelidade/clientes com perfis, preferências, alergias, serviços preferidos, busca e histórico de visitas ligado aos agendamentos.",
+      "acceptanceCriteria": [
+        "User can create/edit client profiles with preference fields (notes, allergies/sensitivities, preferred services).",
+        "Client detail page shows a visit history list sourced from appointments linked to that client.",
+        "Client search works by name and phone/email (if provided).",
+        "All fields and labels are in Portuguese and suitable for salon usage (e.g., \"Preferências\", \"Alergias\", \"Observações\")."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/FidelidadeClientesPage.tsx",
+          "operation": "modify",
+          "description": "Implementar lista de clientes com busca (nome e contato), ação de criar/editar e um painel/área de detalhe do cliente com campos de preferências, alergias/sensibilidades, observações e pontos de fidelidade. Usar componentes do shadcn-ui para layout, forms, table/list e dialogs. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/clientes/ClientFormDialog.tsx",
+          "operation": "create",
+          "description": "Modal para criar/editar cliente com nome, contato, preferências e alergias; textos e validações em PT-BR. Usar componentes do shadcn-ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/clientes/ClientDetailPanel.tsx",
+          "operation": "create",
+          "description": "Componente de detalhe com seções \"Preferências\", \"Alergias/Sensibilidades\", \"Observações\" e \"Histórico de visitas\" (agendamentos vinculados), com empty-states em português. Usar componentes do shadcn-ui (Tabs/Accordion/Cards). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/clientes/useClientes.ts",
+          "operation": "create",
+          "description": "Hook para carregar clientes, executar mutações (criar/editar, atualizar pontos) e expor utilitários de busca; integrar com agenda para suportar seleção/criação rápida de cliente no agendamento."
+        },
+        {
+          "path": "frontend/src/components/agenda/AppointmentFormDialog.tsx",
+          "operation": "modify",
+          "description": "Integrar seleção de cliente com opção de criar cliente sem sair do fluxo (ex.: abrir ClientFormDialog) e garantir que a lista de clientes atualize após salvar. Usar componentes do shadcn-ui. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Adicionar upload e visualização de fotos de portfólio vinculadas a cliente e/ou agendamento, com galeria, miniaturas e visualização detalhada com metadados.",
+      "acceptanceCriteria": [
+        "User can upload at least one image file per appointment/client and see it appear in a gallery after upload completes.",
+        "Photos persist after reload and are retrievable via backend APIs.",
+        "Gallery supports viewing thumbnails and opening a larger preview with metadata (date, optional caption).",
+        "UI communicates upload constraints in Portuguese (e.g., allowed file types) and handles upload errors gracefully."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/portfolio/PortfolioUploader.tsx",
+          "operation": "create",
+          "description": "Criar componente de upload de imagem (com progresso, validação de tipo/tamanho e erros em PT-BR) para anexar fotos a um cliente e/ou agendamento. Usar o componente selecionado blob-storage (ExternalBlob com withUploadProgress/getDirectURL) para representar e enviar arquivos; Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/portfolio/PortfolioGallery.tsx",
+          "operation": "create",
+          "description": "Criar galeria com miniaturas e clique para abrir visualização maior com metadados (data, legenda opcional, tags de serviço). Usar blob-storage para renderizar imagens via URL direta (getDirectURL) quando aplicável; Verify the component's usage instructions before implementing. Usar componentes do shadcn-ui (Dialog, Card, ScrollArea). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/portfolio/PhotoDetailDialog.tsx",
+          "operation": "create",
+          "description": "Criar modal de detalhe de foto com prévia grande e campos de metadados (legenda, tags, data) em português. Usar componentes do shadcn-ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/portfolio/usePortfolio.ts",
+          "operation": "create",
+          "description": "Hook para carregar e atualizar a galeria por cliente/agendamento e por tags de serviço, consumindo as capacidades disponíveis no backendClient e preparando integração com blob-storage. Incluir tratamento de estado de carregamento/erro em PT-BR."
+        },
+        {
+          "path": "frontend/src/pages/AgendaDeHojePage.tsx",
+          "operation": "modify",
+          "description": "Integrar seção \"Portfólio\" no detalhe do agendamento (ex.: dentro de um dialog/painel) usando PortfolioUploader + PortfolioGallery, sem criar uma nova página fora das 4 seções principais. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/FidelidadeClientesPage.tsx",
+          "operation": "modify",
+          "description": "Integrar seção \"Portfólio\" no detalhe do cliente usando PortfolioUploader + PortfolioGallery. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Implementar atualizações de status (linha do tempo) em agendamentos com ação de copiar texto formatado em português para a área de transferência.",
+      "acceptanceCriteria": [
+        "User can add status entries to an appointment; entries show in chronological order with timestamps.",
+        "Appointment list and detail screen reflect the latest status clearly.",
+        "A 'Copiar atualização' action copies a formatted Portuguese message to clipboard (e.g., client name + appointment time + current status).",
+        "No external messaging integrations are required for completion; status updates remain in-app and via copy-to-clipboard."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/status/StatusTimeline.tsx",
+          "operation": "create",
+          "description": "Criar componente de linha do tempo de status com entradas carimbadas por horário/data, em ordem cronológica, exibindo o status e observações associadas (quando houver) com UI premium. Usar componentes do shadcn-ui (Timeline-like list via Card/Separator). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/status/AddStatusEntryForm.tsx",
+          "operation": "create",
+          "description": "Criar formulário para adicionar uma entrada de status (ex.: Confirmado/Em andamento/Finalizado) com validações em português e gravação via backendClient. Usar componentes do shadcn-ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/status/useStatusUpdates.ts",
+          "operation": "create",
+          "description": "Hook para carregar/adicionar entradas de status e manter o status mais recente sincronizado com a lista e o detalhe do agendamento; preparar mapeamento Status -> rótulos PT-BR."
+        },
+        {
+          "path": "frontend/src/components/status/CopyUpdateButton.tsx",
+          "operation": "create",
+          "description": "Criar ação \"Copiar atualização\" que formata mensagem em português (nome do cliente + horário + status atual) e copia para o clipboard, com feedback visual em PT-BR. Usar componentes do shadcn-ui (Button, Toast/Sonner se disponível). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/AgendaDeHojePage.tsx",
+          "operation": "modify",
+          "description": "Exibir status mais recente no item da lista e no detalhe do agendamento; integrar StatusTimeline + AddStatusEntryForm + CopyUpdateButton no fluxo de operação do dia. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Aplicar tema visual premium (preto/branco com acentos dourados), tipografia consistente e componentes polidos em todo o app, evitando paleta azul/roxa como primária.",
+      "acceptanceCriteria": [
+        "App uses a consistent palette dominated by black/white with gold accents for primary actions and highlights.",
+        "Typography and component styling feel premium (clear hierarchy, generous spacing, subtle borders/shadows).",
+        "All primary screens (the 4 sections + key modals/forms) follow the same design language and layout system."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "create",
+          "description": "Criar estilos globais com variáveis de cor e base do tema (preto/branco com acentos dourados), tipografia e espaçamento; ajustar tokens (ex.: --primary/--accent) para evitar aparência azul/roxa e manter consistência premium."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Ajustar/estender tokens do Tailwind (via CSS variables já usadas) para suportar a paleta premium com destaque dourado e superfícies em preto/branco, garantindo consistência em componentes e estados (hover/focus)."
+        },
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "create",
+          "description": "Criar componente de layout compartilhado (header + área de conteúdo + navegação) com espaçamento generoso, bordas/sombras sutis e hierarquia tipográfica consistente. Usar componentes do shadcn-ui para estrutura. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Aplicar AppLayout a todas as telas principais e padronizar cabeçalhos, botões primários (dourado), formulários e listas conforme o tema premium. Usar shadcn-ui para consistência visual. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "summary": "Incluir e renderizar assets estáticos de marca (logo/monograma/textura) a partir de frontend/public/assets/generated, sem uso do backend.",
+      "acceptanceCriteria": [
+        "Generated images exist under frontend/public/assets/generated with the exact filenames specified in imageRequirements.required.",
+        "App header/login-free shell displays the logo in a tasteful way and optionally uses the subtle background/texture in a non-distracting manner.",
+        "No backend endpoints are used to serve these static brand images."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/salon-wordmark.dim_1200x300.png",
+          "operation": "create",
+          "description": "Adicionar o asset gerado conforme imageRequirements: frontend/public/assets/generated/salon-wordmark.dim_1200x300.png (logo wordmark)."
+        },
+        {
+          "path": "frontend/public/assets/generated/salon-monogram.dim_512x512.png",
+          "operation": "create",
+          "description": "Adicionar o asset gerado conforme imageRequirements: frontend/public/assets/generated/salon-monogram.dim_512x512.png (monograma)."
+        },
+        {
+          "path": "frontend/public/assets/generated/salon-texture.dim_1920x1080.png",
+          "operation": "create",
+          "description": "Adicionar o asset gerado conforme imageRequirements: frontend/public/assets/generated/salon-texture.dim_1920x1080.png (textura de fundo)."
+        },
+        {
+          "path": "frontend/src/components/brand/BrandHeader.tsx",
+          "operation": "create",
+          "description": "Criar cabeçalho premium que renderiza o wordmark e/ou monograma a partir dos assets estáticos em frontend/public/assets/generated (sem depender do backend). Usar componentes do shadcn-ui para layout/menus. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Integrar BrandHeader e aplicar a textura de fundo (frontend/public/assets/generated/salon-texture.dim_1920x1080.png) de forma sutil e não distrativa no shell do app (ex.: fundo do layout), mantendo legibilidade."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "High-end beauty salon management app in Portuguese with an elegant gold/black/white design, featuring appointment management, inventory control, service catalog with pricing, client loyalty/preferences, portfolio photo uploads, and client status updates.",
+  "architectural_notes": [
+    "UI/UX must be elegant and sophisticated using a gold, black, and white color palette.",
+    "App language/localization: Portuguese."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Luxury salon wordmark logo in gold foil style on black background (salon-wordmark.dim_1200x300.png)\n- Minimal monogram emblem in gold on transparent background (salon-monogram.dim_512x512.png)\n- Subtle premium background texture pattern in black with faint gold accents (salon-texture.dim_1920x1080.png)",
+  "existing_features": [
+    {
+      "id": "feature-create-the-core-app-navigation-and-information-architecture-with-4-primary-sections-1-agenda-de-hoje-for-daily-appointments-2-controle-de-estoque-for-professional-product-inventory-3-cat-logo-de-servi-os-for-services-and-prices-and-4-fidelidade-clientes-for-client-profiles-and-preferences-all-user-facing-ui-copy-must-be-in-portuguese",
+      "title": "Create the core app navigation and information architecture with 4 primary sections: (1) \"Agenda de Hoje\" for daily appointments, (2) \"Controle de Estoque\" for professional product inventory, (3) \"Catálogo de Serviços\" for services and prices, and (4) \"Fidelidade Clientes\" for client profiles and preferences. All user-facing UI copy must be in Portuguese.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-agenda-de-hoje-daily-agenda-ui-to-create-view-update-and-cancel-appointments-including-client-selection-creation-service-selection-from-the-service-catalog-scheduled-time-duration-notes-and-appointment-status-provide-a-today-view-optimized-for-day-operations-list-timeline-plus-basic-date-navigation",
+      "title": "Build \"Agenda de Hoje\" (daily agenda) UI to create, view, update, and cancel appointments, including: client selection/creation, service selection from the service catalog, scheduled time, duration, notes, and appointment status. Provide a \"Today\" view optimized for day operations (list/timeline), plus basic date navigation.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-controle-de-estoque-ui-and-backend-logic-to-manage-professional-products-e-g-dyes-shampoos-including-product-name-brand-category-unit-current-quantity-minimum-threshold-low-stock-supplier-notes-and-stock-movement-history-add-remove-adjustments-with-reason-and-timestamp",
+      "title": "Build \"Controle de Estoque\" UI and backend logic to manage professional products (e.g., dyes, shampoos) including: product name, brand, category, unit, current quantity, minimum threshold (low-stock), supplier notes, and stock movement history (add/remove adjustments with reason and timestamp).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-cat-logo-de-servi-os-ui-and-backend-logic-to-manage-services-with-name-description-duration-price-and-active-inactive-status-enable-selecting-services-when-creating-editing-appointments",
+      "title": "Build \"Catálogo de Serviços\" UI and backend logic to manage services with: name, description, duration, price, and active/inactive status. Enable selecting services when creating/editing appointments.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-fidelidade-clientes-ui-and-backend-logic-for-client-profiles-that-store-preferences-and-loyalty-related-details-including-contact-info-preferred-services-color-formula-notes-allergies-sensitivities-visit-history-linked-appointments-and-free-form-preference-notes",
+      "title": "Build \"Fidelidade Clientes\" UI and backend logic for client profiles that store preferences and loyalty-related details, including: contact info, preferred services, color/formula notes, allergies/sensitivities, visit history (linked appointments), and free-form preference notes.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-portfolio-result-photo-upload-and-viewing-allow-attaching-one-or-more-photos-to-a-client-and-or-an-appointment-store-them-in-the-backend-and-provide-a-gallery-ui-with-thumbnails-and-a-detail-view-including-optional-caption-service-tags-and-date",
+      "title": "Add portfolio/result photo upload and viewing: allow attaching one or more photos to a client and/or an appointment, store them in the backend, and provide a gallery UI with thumbnails and a detail view (including optional caption, service tags, and date).",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-appointment-client-status-updates-as-in-app-updates-allow-staff-to-add-timestamped-status-entries-to-an-appointment-e-g-confirmado-em-andamento-finalizado-display-a-status-timeline-and-provide-a-one-click-copy-update-text-action-for-sharing-externally-without-integrating-sms-email-services",
+      "title": "Implement appointment/client status updates as in-app updates: allow staff to add timestamped status entries to an appointment (e.g., \"Confirmado\", \"Em andamento\", \"Finalizado\"), display a status timeline, and provide a one-click 'copy update text' action for sharing externally (without integrating SMS/email services).",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-cohesive-high-end-visual-theme-across-the-app-elegant-and-sophisticated-styling-using-gold-black-and-white-with-consistent-typography-spacing-and-polished-components-for-lists-forms-and-detail-pages-without-using-a-blue-purple-primary-palette",
+      "title": "Apply a cohesive, high-end visual theme across the app: elegant and sophisticated styling using gold, black, and white, with consistent typography, spacing, and polished components for lists, forms, and detail pages (without using a blue/purple primary palette).",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-generate-and-include-static-brand-assets-for-the-app-logo-and-subtle-background-texture-and-render-them-in-the-ui-from-frontend-public-assets-generated-do-not-serve-these-images-via-the-backend",
+      "title": "Generate and include static brand assets for the app (logo and subtle background/texture) and render them in the UI from frontend/public/assets/generated (do not serve these images via the backend).",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Implement 'Agenda de Hoje' to manage daily appointments (agendamentos)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Implement 'Controle de Estoque' for professional product inventory (e.g., dyes, shampoos)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Implement 'Catálogo de Serviços' with service listing and prices",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Implement 'Fidelidade Clientes' to register client preferences and loyalty-related data",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Add portfolio/result photo uploads associated with services/clients",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Enable sending client status updates (e.g., appointment/service progress notifications)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Implement backend data models and CRUD APIs in the single Motoko main actor for: appointments, inventory products, services, clients (including preferences/loyalty fields), portfolio photos, and status updates. Provide query endpoints needed to support filtering, sorting, and 'today view' on the frontend.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "High-end Beauty Salon Management App (Portuguese UI) with Agenda, Inventory, Services, Loyalty, Portfolio, and Status Updates",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

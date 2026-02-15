@@ -1,0 +1,158 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-15T23:02:52.826Z",
+  "summary": "O diff implementa a estrutura base do app (layout com navegação 4-seções em PT-BR), parte dos formulários/listagens para agenda/estoque/serviços/clientes, e um tema visual premium (preto/branco/dourado) com uso de assets de marca referenciados. Porém, vários requisitos centrais não aparecem implementados no diff: CRUD completo e validações no backend, “today view” via endpoint, múltiplos serviços por agendamento, cancelamento/edição, histórico de movimentações de estoque, busca/filtros, campos de fidelidade/preferências completos, portfolio (upload/galeria), e status updates com timeline + copiar para clipboard. Também há adições não solicitadas (Internet Identity, links/botões de redes sociais e texto/branding do caffeine.ai em inglês).",
+  "missing_requirements": [
+    {
+      "id": "REQ-2",
+      "requirement": "CRUD completo no backend (Motoko single actor) para appointments, products, services, clients, portfolio photos e status updates, com endpoints de filtro/ordenação e 'today view', validações (ex.: nome cliente não vazio, estoque não negativo) e IDs estáveis/determinísticos.",
+      "reason": "O backend mostrado só evidencia alguns métodos (ex.: produtos/serviços parcialmente) e não evidencia CRUD completo para todas as entidades, nem endpoints de 'today view' por data local/relacionamentos, nem validações exigidas (ex.: impedir estoque negativo no backend / nome vazio), nem estabilidade/determinismo de IDs conforme AC.",
+      "evidence": [
+        "backend/main.mo (truncated)",
+        "frontend/src/hooks/useAgenda.ts (consulta por status no lugar de endpoint 'today')"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Agenda de Hoje: criar/visualizar/atualizar/cancelar agendamentos com seleção/criação de cliente, seleção de um ou mais serviços, horário, duração, notas, status; visão do dia com navegação de datas; persistência pós-reload; empty-states e validações em PT.",
+      "reason": "Há diálogo de criação e item de lista, mas não há evidência no diff de edição, cancelamento/remoção, navegação de datas/visão otimizada (timeline), nem suporte a múltiplos serviços por agendamento (modelo usa apenas serviceId).",
+      "evidence": [
+        "frontend/src/components/agenda/AppointmentFormDialog.tsx (truncated)",
+        "frontend/src/components/agenda/AppointmentListItem.tsx",
+        "backend/main.mo (Appointment tem apenas serviceId)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Estoque: além de CRUD de produtos, suportar histórico de movimentações (add/remove com motivo e timestamp), impedir quantidades negativas no backend, busca por nome/marca e filtro de baixo-estoque.",
+      "reason": "UI inclui ajuste de quantidade com motivo, mas não há evidência de persistência de histórico de movimentações (apenas update de quantity) nem de busca/filtro no frontend. No backend, aparece apenas updateProductQuantity sem registro de movimentos e sem evidência de validação contra negativos.",
+      "evidence": [
+        "frontend/src/components/estoque/StockAdjustDialog.tsx (truncated)",
+        "frontend/src/hooks/useEstoque.ts",
+        "backend/main.mo (updateProductQuantity / getLowStockProducts; sem movimentos visíveis)"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Catálogo de Serviços: lista pesquisável, editar/arquivar (inativo), exibir duração+preço em pt-BR (R$), e somente serviços ativos selecionáveis em agendamentos.",
+      "reason": "Há criação e toggle de status no hook, e o form de agendamento usa activeServices, porém não há evidência de UI de lista pesquisável, nem de edição/arquivamento completo no frontend (apenas form de adicionar visível), nem garantia de refletir imediatamente em todos fluxos além do que aparece no trecho.",
+      "evidence": [
+        "frontend/src/hooks/useServicos.ts",
+        "frontend/src/components/servicos/ServiceFormDialog.tsx (truncated)",
+        "frontend/src/components/agenda/AppointmentFormDialog.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Fidelidade Clientes: perfis com campos de preferência/loyalty detalhados (serviços preferidos, notas de cor/fórmula, alergias/sensibilidades, histórico de visitas ligado a appointments) e busca por nome + telefone/email.",
+      "reason": "Há cadastro básico (nome/contato/preferências/alergias) e painel com histórico via appointments, mas não há evidência de busca por nome/telefone/email nem dos campos solicitados (serviços preferidos, notas de cor/fórmula, etc.).",
+      "evidence": [
+        "frontend/src/components/clientes/ClientFormDialog.tsx",
+        "frontend/src/components/clientes/ClientDetailPanel.tsx (truncated)",
+        "backend/main.mo (Client não evidencia campos para serviços preferidos/cor-fórmula)"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "requirement": "Portfolio: upload e visualização de fotos (anexar a cliente e/ou agendamento), persistência no backend, galeria com thumbnails + detalhe/preview e metadados; mensagens de constraints/erros em PT.",
+      "reason": "O backend define um tipo PortfolioPhoto, mas não há evidência de APIs CRUD para fotos nem componentes de upload/galeria no frontend.",
+      "evidence": [
+        "backend/main.mo (type PortfolioPhoto; sem evidência de métodos no trecho)",
+        "frontend/src (nenhum arquivo de portfolio/galeria listado)"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "requirement": "Status updates em app: adicionar entradas com timestamp (Confirmado/Em andamento/Finalizado etc.), timeline cronológica, refletir status mais recente em lista/detalhe, e ação 'Copiar atualização' para clipboard (sem integrações externas).",
+      "reason": "O frontend mostra badge com status atual do appointment, mas não há evidência de criação de entradas de status (timeline), nem de método backend para registrar entradas, nem de botão de copiar para clipboard.",
+      "evidence": [
+        "frontend/src/components/agenda/AppointmentListItem.tsx",
+        "backend/main.mo (Status enum no modelo; sem timeline visível no trecho)"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "Cada uma das 4 seções deve renderizar sua própria tela com título claro e empty-state quando não há dados.",
+      "reason": "A navegação e layout existem, mas os arquivos das páginas (AgendaDeHojePage, ControleDeEstoquePage, CatalogoDeServicosPage, FidelidadeClientesPage) não estão no diff visível; não dá para confirmar títulos e empty-states por seção.",
+      "evidence": [
+        "frontend/src/App.tsx (importa pages que não aparecem no diff)"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "requirement": "Gerar e incluir os 3 assets estáticos em frontend/public/assets/generated com filenames exatos.",
+      "reason": "Os assets são referenciados (monogram/wordmark/texture), mas os arquivos de imagem em si não aparecem no diff visível (parte dos arquivos adicionados foi omitida). Não é possível confirmar que existem sob o caminho requerido.",
+      "evidence": [
+        "frontend/src/components/brand/BrandHeader.tsx (referências a /assets/generated/...)",
+        "frontend/src/index.css (referência a /assets/generated/salon-texture...)",
+        "File diff summary (\"Omitted files due to limits: added=10\")"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Integração de autenticação com Internet Identity (AuthClient, DelegationIdentity) e infraestrutura de identidade no frontend.",
+      "reason": "O BuildRequest explicitamente define autenticação/role management com Internet Identity como non-goal (a menos que solicitado depois). O diff adiciona um provider/hook completo para II e uso na criação de actor.",
+      "evidence": [
+        "frontend/src/hooks/useInternetIdentity.ts (truncated)",
+        "frontend/src/hooks/useActor.ts",
+        "frontend/src/main.tsx"
+      ]
+    },
+    {
+      "description": "Botões/links de redes sociais (Instagram/Facebook) no rodapé.",
+      "reason": "Não há requisito para integrações/links de redes sociais; são elementos adicionais de UI.",
+      "evidence": [
+        "frontend/src/components/layout/AppLayout.tsx"
+      ]
+    },
+    {
+      "description": "Texto/branding do caffeine.ai no rodapé e string em inglês (\"Built with ... using caffeine.ai\").",
+      "reason": "REQ-1 exige que toda UI visível seja em português (sem strings em inglês). O rodapé inclui texto em inglês e branding não solicitado.",
+      "evidence": [
+        "frontend/src/components/layout/AppLayout.tsx"
+      ]
+    },
+    {
+      "description": "Uso de 'blob-storage/Mixin' no backend (MixinStorage) e referência de foto como URL/texto.",
+      "reason": "O BuildRequest pede armazenamento de fotos no backend com upload/recuperação; o diff introduz um mixin de blob storage e modela 'blob' como referência externa (URL). Isso não foi especificado e pode conflitar com a exigência de armazenar no backend; ao menos é uma implementação não explicitamente requisitada.",
+      "evidence": [
+        "backend/main.mo (include MixinStorage(); PortfolioPhoto.blob : Text // Reference to external file (URL))"
+      ]
+    }
+  ],
+  "confidence": 0.72,
+  "changed_files": [
+    "all_files_summary.json",
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/index.css",
+    "frontend/index.html",
+    "frontend/src/App.tsx",
+    "frontend/src/components/agenda/AppointmentFormDialog.tsx",
+    "frontend/src/components/agenda/AppointmentListItem.tsx",
+    "frontend/src/components/brand/BrandHeader.tsx",
+    "frontend/src/components/clientes/ClientDetailPanel.tsx",
+    "frontend/src/components/clientes/ClientFormDialog.tsx",
+    "frontend/src/components/estoque/ProductFormDialog.tsx",
+    "frontend/src/components/estoque/StockAdjustDialog.tsx",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/components/servicos/ServiceFormDialog.tsx",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/hooks/useAgenda.ts",
+    "frontend/src/hooks/useClientes.ts",
+    "frontend/src/hooks/useEstoque.ts",
+    "frontend/src/hooks/useInternetIdentity.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useServicos.ts",
+    "frontend/src/index.css",
+    "frontend/src/main.tsx",
+    "frontend/src/pages/AgendaDeHojePage.tsx",
+    "frontend/src/pages/CatalogoDeServicosPage.tsx",
+    "frontend/src/pages/ControleDeEstoquePage.tsx",
+    "frontend/src/pages/FidelidadeClientesPage.tsx",
+    "frontend/tailwind.config.js",
+    "project_state.json"
+  ]
+}
