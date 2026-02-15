@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { useAgenda } from '../hooks/useAgenda';
 import { AppointmentFormDialog } from '../components/agenda/AppointmentFormDialog';
@@ -31,7 +30,8 @@ export function AgendaDeHojePage() {
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Novo Agendamento
+          <span className="hidden sm:inline">Novo Agendamento</span>
+          <span className="sm:hidden">Novo</span>
         </Button>
       </div>
 
@@ -105,7 +105,6 @@ export function AgendaDeHojePage() {
       <AppointmentFormDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
-        selectedDate={selectedDate}
       />
     </div>
   );

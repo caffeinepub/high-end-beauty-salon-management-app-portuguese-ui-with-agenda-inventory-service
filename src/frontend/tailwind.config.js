@@ -72,6 +72,9 @@ export default {
                 md: 'calc(var(--radius) - 2px)',
                 sm: 'calc(var(--radius) - 4px)'
             },
+            fontFamily: {
+                sans: ['Montserrat', 'Poppins', 'system-ui', 'sans-serif'],
+            },
             boxShadow: {
                 xs: '0 1px 2px 0 rgba(0,0,0,0.05)'
             },

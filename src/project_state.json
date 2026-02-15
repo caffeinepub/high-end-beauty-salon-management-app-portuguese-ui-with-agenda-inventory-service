@@ -1,14 +1,21 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
-  "summary": "High-end beauty salon management app in Portuguese with an elegant gold/black/white design, featuring appointment management, inventory control, service catalog with pricing, client loyalty/preferences, portfolio photo uploads, and client status updates.",
+  "projectStateVersion": 7,
+  "summary": "High-end beauty salon management app in Portuguese with an elegant luxury dark-mode gold/black aesthetic, featuring a conversion-focused home screen (carousel + category grid + WhatsApp CTA) and simplified internal management: appointment agenda, inventory (admin-only card UI), service catalog with pricing, client loyalty/preferences, portfolio photo uploads, client status updates, and a basic expenses dashboard (entradas vs. saídas).",
   "architectural_notes": [
     "UI/UX must be elegant and sophisticated using a gold, black, and white color palette.",
-    "App language/localization: Portuguese."
+    "App language/localization: Portuguese.",
+    "Mobile-first UI: optimized for thumb reach and tap targets.",
+    "Luxury dark mode palette: background #000000 or #121212 with metallic gold (#D4AF37) / rose gold accents; WhatsApp CTA uses vibrant green.",
+    "Typography direction: modern clean fonts (e.g., Montserrat or Poppins); bold headings.",
+    "Home feed/portfolio imagery should be displayed as high-res cards with rounded corners (radius 16).",
+    "Navigation: bottom navbar with 4 icons (Início, Serviços, Agendamentos, Perfil).",
+    "Inventory UI constraint: admin-only access; prefer card-based layout (not tables) with quick-adjust action per product."
   ],
-  "known_issues": [],
+  "known_issues": [
+    "Deployment/domain configuration errors: domain name must be 5–50 characters and contain only letters, numbers, and hyphens (previous attempted domains failed validation)."
+  ],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Luxury salon wordmark logo in gold foil style on black background (salon-wordmark.dim_1200x300.png)\n- Minimal monogram emblem in gold on transparent background (salon-monogram.dim_512x512.png)\n- Subtle premium background texture pattern in black with faint gold accents (salon-texture.dim_1920x1080.png)",
   "existing_features": [
     {
       "id": "feature-create-the-core-app-navigation-and-information-architecture-with-4-primary-sections-1-agenda-de-hoje-for-daily-appointments-2-controle-de-estoque-for-professional-product-inventory-3-cat-logo-de-servi-os-for-services-and-prices-and-4-fidelidade-clientes-for-client-profiles-and-preferences-all-user-facing-ui-copy-must-be-in-portuguese",
@@ -81,6 +88,70 @@
         "REQ-10"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-app-navigation-to-be-mobile-first-with-a-fixed-bottom-tab-bar-that-has-exactly-4-tabs-home-services-appointments-profile-the-bottom-tab-bar-must-be-thumb-friendly-large-hit-targets-and-replace-the-current-desktop-style-sidebar-navigation-in-applayout",
+      "title": "Update the app navigation to be mobile-first with a fixed bottom tab bar that has exactly 4 tabs: Home, Services, Appointments, Profile. The bottom tab bar must be thumb-friendly (large hit targets) and replace the current desktop-style sidebar navigation in AppLayout.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-new-conversion-focused-home-screen-that-includes-1-a-hero-image-carousel-showing-best-highlight-photos-2-a-category-grid-with-4-elegant-category-items-highlights-haircut-treatments-agenda-and-3-a-floating-whatsapp-action-button-fixed-to-the-bottom-right-that-opens-the-provided-wa-me-deep-link-with-the-prefilled-message",
+      "title": "Implement a new conversion-focused Home screen that includes: (1) a hero image carousel showing best highlight photos, (2) a category grid with 4 elegant category items: Highlights, Haircut, Treatments, Agenda, and (3) a floating WhatsApp action button fixed to the bottom-right that opens the provided wa.me deep link with the prefilled message.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-align-the-global-visual-system-to-the-requested-luxury-dark-theme-near-black-graphite-backgrounds-metallic-gold-and-optional-rose-gold-accent-for-key-actions-and-icons-modern-clean-typography-montserrat-or-poppins-and-consistent-rounded-card-styling-radius-16-for-image-based-cards",
+      "title": "Align the global visual system to the requested luxury dark theme: near-black/graphite backgrounds, metallic gold (and optional rose-gold accent) for key actions and icons, modern clean typography (Montserrat or Poppins), and consistent rounded card styling (radius 16) for image-based cards.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-revise-the-service-catalog-page-ui-into-a-conversion-focused-vertical-list-where-each-service-item-shows-an-image-service-name-estimated-duration-price-and-an-schedule-button-per-item-tapping-schedule-must-start-the-existing-appointment-creation-flow-with-that-service-preselected",
+      "title": "Revise the Service Catalog page UI into a conversion-focused vertical list where each service item shows: an image, service name, estimated duration, price, and an \"Schedule\" button per item. Tapping \"Schedule\" must start the existing appointment creation flow with that service preselected.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-inventory-stock-control-ui-to-use-a-card-based-layout-instead-of-tables-each-product-card-must-show-a-product-image-current-quantity-and-a-quick-adjust-action-that-opens-the-existing-stock-adjustment-dialog-with-the-selected-product",
+      "title": "Update the Inventory (stock control) UI to use a card-based layout (instead of tables). Each product card must show a product image, current quantity, and a \"Quick Adjust\" action that opens the existing stock adjustment dialog with the selected product.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-admin-only-expenses-dashboard-that-displays-a-simple-monthly-bar-chart-comparing-income-vs-expenses-and-supports-adding-basic-transactions-so-the-chart-is-not-hard-coded-the-dashboard-must-be-accessible-from-the-profile-tab-or-a-clearly-labeled-admin-section-within-profile",
+      "title": "Add an Admin-only Expenses dashboard that displays a simple monthly bar chart comparing \"Income vs. Expenses\" and supports adding basic transactions so the chart is not hard-coded. The dashboard must be accessible from the Profile tab (or a clearly labeled admin section within Profile).",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-dedicated-prominent-nails-designer-quick-filter-on-the-services-catalog-page-that-when-selected-filters-the-list-to-services-matching-nails-manicure-terms-and-clearly-indicates-the-filter-is-active-with-a-one-tap-way-to-clear-it",
+      "title": "Add a dedicated, prominent 'Nails Designer' quick filter on the Services Catalog page that, when selected, filters the list to services matching nails/manicure terms and clearly indicates the filter is active (with a one-tap way to clear it).",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-allow-creating-a-nails-designer-service-faster-by-adding-an-optional-preset-entry-point-from-the-existing-add-service-flow-that-pre-fills-the-service-name-with-nails-designer-leaving-duration-price-to-be-entered-by-the-admin",
+      "title": "Allow creating a 'Nails Designer' service faster by adding an optional preset entry point from the existing 'Add Service' flow that pre-fills the service name with 'Nails Designer' (leaving duration/price to be entered by the admin).",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -126,6 +197,38 @@
       "reqIds": [
         "REQ-2"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Create a conversion-focused mobile-first Home screen with highlight photo carousel and category grid (Mechas, Corte, Tratamentos, Agenda)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Add a floating WhatsApp action button (deep link to wa.me with prefilled message) fixed bottom-right",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Implement 'Controle de Gastos' dashboard with simple monthly 'Entradas vs. Saídas' bar charts",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Implement backend support for Admin-only access control and expenses tracking. Add: (1) an admin allowlist mechanism, (2) a query to check whether the current caller is an admin, (3) CRUD methods for expense/income transactions, and (4) a query that returns monthly aggregates for Income vs. Expenses used by the frontend chart.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Adicionar suporte a “Nails Designer” (unha/serviços de manicure) no app",
+      "reqIds": [],
       "status": "pending"
     }
   ],

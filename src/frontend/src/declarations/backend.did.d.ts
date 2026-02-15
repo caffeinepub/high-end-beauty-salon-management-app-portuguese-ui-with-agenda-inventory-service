@@ -20,15 +20,6 @@ export interface Appointment {
   'serviceId' : ServiceID,
 }
 export type AppointmentID = bigint;
-export interface Client {
-  'id' : ClientID,
-  'contactInfo' : string,
-  'visitHistory' : Array<AppointmentID>,
-  'name' : string,
-  'loyaltyPoints' : bigint,
-  'preferences' : string,
-  'allergies' : string,
-}
 export type ClientID = bigint;
 export interface PortfolioPhoto {
   'id' : string,
@@ -63,6 +54,22 @@ export type Status = { 'finished' : null } |
   { 'confirmed' : null } |
   { 'inProgress' : null };
 export type Time = bigint;
+export interface Transaction {
+  'id' : bigint,
+  'isExpense' : boolean,
+  'description' : string,
+  'timestamp' : Time,
+  'category' : string,
+  'amount' : number,
+}
+export interface UserProfile {
+  'name' : string,
+  'email' : string,
+  'phone' : string,
+}
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _CaffeineStorageCreateCertificateResult {
   'method' : string,
   'blob_hash' : string,
@@ -90,22 +97,32 @@ export interface _SERVICE {
     _CaffeineStorageRefillResult
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addClient' : ActorMethod<[string, string, string, string], ClientID>,
   'addProduct' : ActorMethod<
     [string, string, string, string, number, number, string],
     ProductID
   >,
   'addService' : ActorMethod<[string, string, bigint, number], ServiceID>,
+  'addTransaction' : ActorMethod<[number, string, boolean, string], bigint>,
   'addVisitToClient' : ActorMethod<[ClientID, AppointmentID], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createAppointment' : ActorMethod<
     [ClientID, ServiceID, Time, bigint, string],
     AppointmentID
   >,
-  'getAllClients' : ActorMethod<[], Array<Client>>,
+  'deleteTransaction' : ActorMethod<[bigint], undefined>,
   'getAllProducts' : ActorMethod<[], Array<Product>>,
   'getAllServices' : ActorMethod<[], Array<Service>>,
+  'getAllTransactions' : ActorMethod<[], Array<Transaction>>,
   'getAppointmentsByStatus' : ActorMethod<[Status], Array<Appointment>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getLowStockProducts' : ActorMethod<[], Array<Product>>,
+  'getMonthlyAggregates' : ActorMethod<
+    [bigint],
+    Array<[string, number, number]>
+  >,
   'getPortfolioPhotosByServiceTag' : ActorMethod<
     [string],
     Array<PortfolioPhoto>
@@ -113,9 +130,16 @@ export interface _SERVICE {
   'getProduct' : ActorMethod<[ProductID], [] | [Product]>,
   'getService' : ActorMethod<[ServiceID], [] | [Service]>,
   'getTodayAppointments' : ActorMethod<[], Array<Appointment>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'setServiceStatus' : ActorMethod<[ServiceID, boolean], undefined>,
   'updateLoyaltyPoints' : ActorMethod<[ClientID, bigint], undefined>,
   'updateProductQuantity' : ActorMethod<[ProductID, number], undefined>,
+  'updateTransaction' : ActorMethod<
+    [bigint, number, string, boolean, string],
+    undefined
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

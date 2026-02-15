@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useServicosMutations } from '../../hooks/useServicos';
 import { toast } from 'sonner';
+import { Sparkles } from 'lucide-react';
 
 interface ServiceFormDialogProps {
   open: boolean;
@@ -63,6 +64,11 @@ export function ServiceFormDialog({ open, onOpenChange }: ServiceFormDialogProps
     }
   };
 
+  const handleNailsDesignerPreset = () => {
+    setName('Nails Designer');
+    toast.success('Preset aplicado! Complete duração e preço.');
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
@@ -75,6 +81,20 @@ export function ServiceFormDialog({ open, onOpenChange }: ServiceFormDialogProps
           </DialogHeader>
 
           <div className="space-y-4 py-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-muted-foreground">Usar preset:</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleNailsDesignerPreset}
+                className="gap-2"
+              >
+                <Sparkles className="h-3 w-3" />
+                Nails Designer
+              </Button>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="name">Nome do Serviço *</Label>
               <Input

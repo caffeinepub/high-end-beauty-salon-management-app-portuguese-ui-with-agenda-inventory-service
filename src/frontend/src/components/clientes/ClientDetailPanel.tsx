@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { type Client } from '../../backend';
+import { type Client } from '../../hooks/useClientes';
 import { useAgenda } from '../../hooks/useAgenda';
 import { useServicos } from '../../hooks/useServicos';
 import { format } from 'date-fns';

@@ -23,16 +23,12 @@ export const ClientID = IDL.Nat;
 export const ProductID = IDL.Nat;
 export const ServiceID = IDL.Nat;
 export const AppointmentID = IDL.Nat;
-export const Time = IDL.Int;
-export const Client = IDL.Record({
-  'id' : ClientID,
-  'contactInfo' : IDL.Text,
-  'visitHistory' : IDL.Vec(AppointmentID),
-  'name' : IDL.Text,
-  'loyaltyPoints' : IDL.Nat,
-  'preferences' : IDL.Text,
-  'allergies' : IDL.Text,
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
 });
+export const Time = IDL.Int;
 export const Product = IDL.Record({
   'id' : ProductID,
   'name' : IDL.Text,
@@ -51,6 +47,14 @@ export const Service = IDL.Record({
   'description' : IDL.Text,
   'price' : IDL.Float64,
 });
+export const Transaction = IDL.Record({
+  'id' : IDL.Nat,
+  'isExpense' : IDL.Bool,
+  'description' : IDL.Text,
+  'timestamp' : Time,
+  'category' : IDL.Text,
+  'amount' : IDL.Float64,
+});
 export const Status = IDL.Variant({
   'finished' : IDL.Null,
   'confirmed' : IDL.Null,
@@ -64,6 +68,11 @@ export const Appointment = IDL.Record({
   'scheduledTime' : Time,
   'notes' : IDL.Text,
   'serviceId' : ServiceID,
+});
+export const UserProfile = IDL.Record({
+  'name' : IDL.Text,
+  'email' : IDL.Text,
+  'phone' : IDL.Text,
 });
 export const PortfolioPhoto = IDL.Record({
   'id' : IDL.Text,
@@ -102,6 +111,7 @@ export const idlService = IDL.Service({
       [],
     ),
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addClient' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
       [ClientID],
@@ -125,21 +135,35 @@ export const idlService = IDL.Service({
       [ServiceID],
       [],
     ),
+  'addTransaction' : IDL.Func(
+      [IDL.Float64, IDL.Text, IDL.Bool, IDL.Text],
+      [IDL.Nat],
+      [],
+    ),
   'addVisitToClient' : IDL.Func([ClientID, AppointmentID], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createAppointment' : IDL.Func(
       [ClientID, ServiceID, Time, IDL.Nat, IDL.Text],
       [AppointmentID],
       [],
     ),
-  'getAllClients' : IDL.Func([], [IDL.Vec(Client)], ['query']),
+  'deleteTransaction' : IDL.Func([IDL.Nat], [], []),
   'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
   'getAllServices' : IDL.Func([], [IDL.Vec(Service)], ['query']),
+  'getAllTransactions' : IDL.Func([], [IDL.Vec(Transaction)], ['query']),
   'getAppointmentsByStatus' : IDL.Func(
       [Status],
       [IDL.Vec(Appointment)],
       ['query'],
     ),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getLowStockProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+  'getMonthlyAggregates' : IDL.Func(
+      [IDL.Int],
+      [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Float64, IDL.Float64))],
+      ['query'],
+    ),
   'getPortfolioPhotosByServiceTag' : IDL.Func(
       [IDL.Text],
       [IDL.Vec(PortfolioPhoto)],
@@ -148,9 +172,21 @@ export const idlService = IDL.Service({
   'getProduct' : IDL.Func([ProductID], [IDL.Opt(Product)], ['query']),
   'getService' : IDL.Func([ServiceID], [IDL.Opt(Service)], ['query']),
   'getTodayAppointments' : IDL.Func([], [IDL.Vec(Appointment)], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'setServiceStatus' : IDL.Func([ServiceID, IDL.Bool], [], []),
   'updateLoyaltyPoints' : IDL.Func([ClientID, IDL.Nat], [], []),
   'updateProductQuantity' : IDL.Func([ProductID, IDL.Float64], [], []),
+  'updateTransaction' : IDL.Func(
+      [IDL.Nat, IDL.Float64, IDL.Text, IDL.Bool, IDL.Text],
+      [],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
@@ -171,16 +207,12 @@ export const idlFactory = ({ IDL }) => {
   const ProductID = IDL.Nat;
   const ServiceID = IDL.Nat;
   const AppointmentID = IDL.Nat;
-  const Time = IDL.Int;
-  const Client = IDL.Record({
-    'id' : ClientID,
-    'contactInfo' : IDL.Text,
-    'visitHistory' : IDL.Vec(AppointmentID),
-    'name' : IDL.Text,
-    'loyaltyPoints' : IDL.Nat,
-    'preferences' : IDL.Text,
-    'allergies' : IDL.Text,
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
   });
+  const Time = IDL.Int;
   const Product = IDL.Record({
     'id' : ProductID,
     'name' : IDL.Text,
@@ -199,6 +231,14 @@ export const idlFactory = ({ IDL }) => {
     'description' : IDL.Text,
     'price' : IDL.Float64,
   });
+  const Transaction = IDL.Record({
+    'id' : IDL.Nat,
+    'isExpense' : IDL.Bool,
+    'description' : IDL.Text,
+    'timestamp' : Time,
+    'category' : IDL.Text,
+    'amount' : IDL.Float64,
+  });
   const Status = IDL.Variant({
     'finished' : IDL.Null,
     'confirmed' : IDL.Null,
@@ -212,6 +252,11 @@ export const idlFactory = ({ IDL }) => {
     'scheduledTime' : Time,
     'notes' : IDL.Text,
     'serviceId' : ServiceID,
+  });
+  const UserProfile = IDL.Record({
+    'name' : IDL.Text,
+    'email' : IDL.Text,
+    'phone' : IDL.Text,
   });
   const PortfolioPhoto = IDL.Record({
     'id' : IDL.Text,
@@ -250,6 +295,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addClient' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [ClientID],
@@ -273,21 +319,35 @@ export const idlFactory = ({ IDL }) => {
         [ServiceID],
         [],
       ),
+    'addTransaction' : IDL.Func(
+        [IDL.Float64, IDL.Text, IDL.Bool, IDL.Text],
+        [IDL.Nat],
+        [],
+      ),
     'addVisitToClient' : IDL.Func([ClientID, AppointmentID], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createAppointment' : IDL.Func(
         [ClientID, ServiceID, Time, IDL.Nat, IDL.Text],
         [AppointmentID],
         [],
       ),
-    'getAllClients' : IDL.Func([], [IDL.Vec(Client)], ['query']),
+    'deleteTransaction' : IDL.Func([IDL.Nat], [], []),
     'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
     'getAllServices' : IDL.Func([], [IDL.Vec(Service)], ['query']),
+    'getAllTransactions' : IDL.Func([], [IDL.Vec(Transaction)], ['query']),
     'getAppointmentsByStatus' : IDL.Func(
         [Status],
         [IDL.Vec(Appointment)],
         ['query'],
       ),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getLowStockProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+    'getMonthlyAggregates' : IDL.Func(
+        [IDL.Int],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Float64, IDL.Float64))],
+        ['query'],
+      ),
     'getPortfolioPhotosByServiceTag' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(PortfolioPhoto)],
@@ -296,9 +356,21 @@ export const idlFactory = ({ IDL }) => {
     'getProduct' : IDL.Func([ProductID], [IDL.Opt(Product)], ['query']),
     'getService' : IDL.Func([ServiceID], [IDL.Opt(Service)], ['query']),
     'getTodayAppointments' : IDL.Func([], [IDL.Vec(Appointment)], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'setServiceStatus' : IDL.Func([ServiceID, IDL.Bool], [], []),
     'updateLoyaltyPoints' : IDL.Func([ClientID, IDL.Nat], [], []),
     'updateProductQuantity' : IDL.Func([ProductID, IDL.Float64], [], []),
+    'updateTransaction' : IDL.Func(
+        [IDL.Nat, IDL.Float64, IDL.Text, IDL.Bool, IDL.Text],
+        [],
+        [],
+      ),
   });
 };
 

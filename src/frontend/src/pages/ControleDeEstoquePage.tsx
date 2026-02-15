@@ -5,9 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Plus, Search, AlertTriangle, Package as PackageIcon } from 'lucide-react';
 import { useEstoque } from '../hooks/useEstoque';
 import { ProductFormDialog } from '../components/estoque/ProductFormDialog';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { StockAdjustDialog } from '../components/estoque/StockAdjustDialog';
+import { ProductCard } from '../components/estoque/ProductCard';
 import { type Product } from '../backend';
 
 export function ControleDeEstoquePage() {
@@ -29,6 +28,11 @@ export function ControleDeEstoquePage() {
 
   const lowStockCount = products.filter(p => p.quantity <= p.minThreshold).length;
 
+  const handleQuickAdjust = (product: Product) => {
+    setSelectedProduct(product);
+    setIsAdjustDialogOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -40,7 +44,8 @@ export function ControleDeEstoquePage() {
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Adicionar Produto
+          <span className="hidden sm:inline">Adicionar Produto</span>
+          <span className="sm:hidden">Novo</span>
         </Button>
       </div>
 
@@ -62,7 +67,7 @@ export function ControleDeEstoquePage() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <CardTitle>Produtos</CardTitle>
               <CardDescription>
@@ -70,13 +75,13 @@ export function ControleDeEstoquePage() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-initial">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por nome ou marca..."
+                  placeholder="Buscar produtos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 w-64"
+                  className="pl-9 w-full sm:w-64"
                 />
               </div>
               <Button
@@ -84,7 +89,7 @@ export function ControleDeEstoquePage() {
                 size="sm"
                 onClick={() => setShowLowStockOnly(!showLowStockOnly)}
               >
-                Estoque Baixo
+                Baixo
               </Button>
             </div>
           </div>
@@ -114,59 +119,15 @@ export function ControleDeEstoquePage() {
               )}
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Produto</TableHead>
-                  <TableHead>Marca</TableHead>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead className="text-right">Quantidade</TableHead>
-                  <TableHead className="text-right">Mínimo</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredProducts.map((product) => {
-                  const isLowStock = product.quantity <= product.minThreshold;
-                  return (
-                    <TableRow key={product.id.toString()}>
-                      <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell>{product.brand}</TableCell>
-                      <TableCell>{product.category}</TableCell>
-                      <TableCell className="text-right">
-                        {product.quantity} {product.unit}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {product.minThreshold} {product.unit}
-                      </TableCell>
-                      <TableCell>
-                        {isLowStock ? (
-                          <Badge variant="destructive" className="gap-1">
-                            <AlertTriangle className="h-3 w-3" />
-                            Baixo
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">Normal</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setIsAdjustDialogOpen(true);
-                          }}
-                        >
-                          Ajustar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id.toString()}
+                  product={product}
+                  onQuickAdjust={handleQuickAdjust}
+                />
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>

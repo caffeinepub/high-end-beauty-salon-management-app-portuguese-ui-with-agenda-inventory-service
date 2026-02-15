@@ -2,37 +2,50 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Scissors } from 'lucide-react';
+import { Plus, Search, Scissors, X } from 'lucide-react';
 import { useServicos } from '../hooks/useServicos';
 import { ServiceFormDialog } from '../components/servicos/ServiceFormDialog';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ServiceCardListItem } from '../components/servicos/ServiceCardListItem';
+import { AppointmentFormDialog } from '../components/agenda/AppointmentFormDialog';
+import { type Service } from '../backend';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 
 export function CatalogoDeServicosPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isAppointmentDialogOpen, setIsAppointmentDialogOpen] = useState(false);
+  const [preselectedService, setPreselectedService] = useState<Service | null>(null);
+  const [nailsFilterActive, setNailsFilterActive] = useState(false);
 
   const { services, isLoading, toggleServiceStatus } = useServicos();
 
-  const filteredServices = services.filter((service) =>
-    service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredServices = services.filter((service) => {
+    const matchesSearch = 
+      service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (!nailsFilterActive) {
+      return matchesSearch;
+    }
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(price);
+    // Apply nails designer filter
+    const nailsKeywords = ['nail', 'nails', 'unha', 'unhas', 'manicure', 'pedicure', 'designer'];
+    const matchesNails = nailsKeywords.some(keyword => 
+      service.name.toLowerCase().includes(keyword) ||
+      service.description.toLowerCase().includes(keyword)
+    );
+
+    return matchesSearch && matchesNails;
+  });
+
+  const handleScheduleService = (service: Service) => {
+    setPreselectedService(service);
+    setIsAppointmentDialogOpen(true);
   };
 
-  const formatDuration = (minutes: bigint) => {
-    const mins = Number(minutes);
-    if (mins < 60) return `${mins}min`;
-    const hours = Math.floor(mins / 60);
-    const remainingMins = mins % 60;
-    return remainingMins > 0 ? `${hours}h ${remainingMins}min` : `${hours}h`;
+  const handleClearNailsFilter = () => {
+    setNailsFilterActive(false);
   };
 
   return (
@@ -46,27 +59,47 @@ export function CatalogoDeServicosPage() {
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Adicionar Serviço
+          <span className="hidden sm:inline">Adicionar Serviço</span>
+          <span className="sm:hidden">Novo</span>
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <CardTitle>Serviços</CardTitle>
               <CardDescription>
                 {filteredServices.length} {filteredServices.length === 1 ? 'serviço' : 'serviços'}
               </CardDescription>
             </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar serviços..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 w-64"
-              />
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Button
+                variant={nailsFilterActive ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setNailsFilterActive(!nailsFilterActive)}
+                className="gap-2 relative"
+              >
+                Nails Designer
+                {nailsFilterActive && (
+                  <X 
+                    className="h-3 w-3 ml-1" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClearNailsFilter();
+                    }}
+                  />
+                )}
+              </Button>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar serviços..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 w-full sm:w-64"
+                />
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -79,15 +112,15 @@ export function CatalogoDeServicosPage() {
             <div className="text-center py-12">
               <Scissors className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">
-                {searchTerm ? 'Nenhum serviço encontrado' : 'Nenhum serviço cadastrado'}
+                {searchTerm || nailsFilterActive ? 'Nenhum serviço encontrado' : 'Nenhum serviço cadastrado'}
               </h3>
               <p className="text-muted-foreground mb-4">
-                {searchTerm 
-                  ? 'Tente ajustar o termo de busca'
+                {searchTerm || nailsFilterActive
+                  ? 'Tente ajustar o termo de busca ou filtro'
                   : 'Comece adicionando serviços ao catálogo'
                 }
               </p>
-              {!searchTerm && (
+              {!searchTerm && !nailsFilterActive && (
                 <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
                   <Plus className="h-4 w-4" />
                   Adicionar Serviço
@@ -95,47 +128,25 @@ export function CatalogoDeServicosPage() {
               )}
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Serviço</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead className="text-right">Duração</TableHead>
-                  <TableHead className="text-right">Preço</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ativo</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredServices.map((service) => (
-                  <TableRow key={service.id.toString()}>
-                    <TableCell className="font-medium">{service.name}</TableCell>
-                    <TableCell className="max-w-xs truncate text-muted-foreground">
-                      {service.description}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatDuration(service.duration)}
-                    </TableCell>
-                    <TableCell className="text-right font-semibold">
-                      {formatPrice(service.price)}
-                    </TableCell>
-                    <TableCell>
-                      {service.active ? (
-                        <Badge variant="secondary">Ativo</Badge>
-                      ) : (
-                        <Badge variant="outline">Inativo</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Switch
-                        checked={service.active}
-                        onCheckedChange={() => toggleServiceStatus(service.id, !service.active)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="space-y-4">
+              {filteredServices.map((service) => (
+                <div key={service.id.toString()} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border rounded-2xl bg-card hover:border-primary/30 transition-colors">
+                  <ServiceCardListItem
+                    service={service}
+                    onSchedule={handleScheduleService}
+                  />
+                  <div className="flex items-center gap-3 ml-auto">
+                    <Badge variant={service.active ? 'secondary' : 'outline'}>
+                      {service.active ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                    <Switch
+                      checked={service.active}
+                      onCheckedChange={() => toggleServiceStatus(service.id, !service.active)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>
@@ -143,6 +154,12 @@ export function CatalogoDeServicosPage() {
       <ServiceFormDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
+      />
+
+      <AppointmentFormDialog
+        open={isAppointmentDialogOpen}
+        onOpenChange={setIsAppointmentDialogOpen}
+        preselectedService={preselectedService}
       />
     </div>
   );

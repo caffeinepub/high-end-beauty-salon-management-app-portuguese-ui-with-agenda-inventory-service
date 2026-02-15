@@ -2,18 +2,24 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Users as UsersIcon } from 'lucide-react';
-import { useClientes } from '../hooks/useClientes';
+import { Plus, Search, Users as UsersIcon, Package, DollarSign } from 'lucide-react';
+import { useClientes, type Client } from '../hooks/useClientes';
 import { ClientFormDialog } from '../components/clientes/ClientFormDialog';
 import { ClientDetailPanel } from '../components/clientes/ClientDetailPanel';
-import { type Client } from '../backend';
+import { useAdmin } from '../hooks/useAdmin';
+import { type PageView } from '../App';
 
-export function FidelidadeClientesPage() {
+interface FidelidadeClientesPageProps {
+  onNavigate: (page: PageView) => void;
+}
+
+export function FidelidadeClientesPage({ onNavigate }: FidelidadeClientesPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   const { clients, isLoading } = useClientes();
+  const { isAdmin, isLoading: isAdminLoading } = useAdmin();
 
   const filteredClients = clients.filter((client) =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -24,16 +30,53 @@ export function FidelidadeClientesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Fidelidade Clientes</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Perfil</h1>
           <p className="text-muted-foreground mt-1">
-            Gerencie perfis e preferências dos clientes
+            Gerencie clientes e configurações
           </p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Adicionar Cliente
+          <span className="hidden sm:inline">Adicionar Cliente</span>
+          <span className="sm:hidden">Novo</span>
         </Button>
       </div>
+
+      {/* Admin Section */}
+      {!isAdminLoading && isAdmin && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="text-lg">Área Administrativa</CardTitle>
+            <CardDescription>Acesso exclusivo para administradores</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                className="justify-start gap-3 h-auto py-4"
+                onClick={() => onNavigate('inventory')}
+              >
+                <Package className="h-5 w-5" />
+                <div className="text-left">
+                  <div className="font-semibold">Controle de Estoque</div>
+                  <div className="text-xs text-muted-foreground">Gerencie produtos</div>
+                </div>
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start gap-3 h-auto py-4"
+                onClick={() => onNavigate('expenses')}
+              >
+                <DollarSign className="h-5 w-5" />
+                <div className="text-left">
+                  <div className="font-semibold">Controle de Gastos</div>
+                  <div className="text-xs text-muted-foreground">Entradas e saídas</div>
+                </div>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Clients List */}
@@ -108,7 +151,7 @@ export function FidelidadeClientesPage() {
                   <UsersIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Selecione um cliente</h3>
                   <p className="text-muted-foreground">
-                    Escolha um cliente da lista para ver os detalhes
+                    Escolha um cliente da lista para ver detalhes
                   </p>
                 </div>
               </CardContent>
