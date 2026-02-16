@@ -12,10 +12,13 @@ export function useAdmin() {
     },
     enabled: !!actor && !isFetching,
     retry: false,
+    staleTime: 0, // Always refetch when invalidated
   });
 
   return {
     isAdmin: query.data || false,
-    isLoading: query.isLoading,
+    isLoading: query.isLoading || isFetching,
+    isFetched: query.isFetched,
+    refetch: query.refetch, // Expose refetch for manual admin permission refresh
   };
 }

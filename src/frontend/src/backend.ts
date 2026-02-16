@@ -196,7 +196,6 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     setServiceStatus(id: ServiceID, active: boolean): Promise<void>;
-    updateAdminCredentials(currentPassword: string, newUsername: string | null, newPassword: string | null, confirmPassword: string | null): Promise<void>;
     updateLoyaltyPoints(clientId: ClientID, newPoints: bigint): Promise<void>;
     updateProductQuantity(id: ProductID, newQuantity: number): Promise<void>;
     updateTransaction(id: bigint, amount: number, category: string, isExpense: boolean, description: string): Promise<void>;
@@ -639,20 +638,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async updateAdminCredentials(arg0: string, arg1: string | null, arg2: string | null, arg3: string | null): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.updateAdminCredentials(arg0, to_candid_opt_n26(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n26(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n26(this._uploadFile, this._downloadFile, arg3));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.updateAdminCredentials(arg0, to_candid_opt_n26(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n26(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n26(this._uploadFile, this._downloadFile, arg3));
-            return result;
-        }
-    }
     async updateLoyaltyPoints(arg0: ClientID, arg1: bigint): Promise<void> {
         if (this.processError) {
             try {
@@ -844,9 +829,6 @@ function to_candid__CaffeineStorageRefillInformation_n2(_uploadFile: (file: Exte
 }
 function to_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CaffeineStorageRefillInformation | null): [] | [__CaffeineStorageRefillInformation] {
     return value === null ? candid_none() : candid_some(to_candid__CaffeineStorageRefillInformation_n2(_uploadFile, _downloadFile, value));
-}
-function to_candid_opt_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: string | null): [] | [string] {
-    return value === null ? candid_none() : candid_some(value);
 }
 function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     proposed_top_up_amount?: bigint;

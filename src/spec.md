@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Allow the admin login to accept the password `joana 123` (with a single internal space) end-to-end, without collapsing internal whitespace during credential checks.
+**Goal:** Fix and align admin login credentials to username `joana` and password `joana123` (no space) and reliably unblock access to the Admin panel after successful login.
 
 **Planned changes:**
-- Update `frontend/src/hooks/useAdminPasswordGate.ts` so `verifyLogin` trims only leading/trailing whitespace and preserves internal spaces when calling `actor.verifyAdminLogin`.
-- Ensure the frontend login flow treats `('joana', 'joana 123')` as valid and `('joana', 'joana123')` as invalid (space remains significant).
-- Update `backend/main.mo` to set the default stored `adminPassword` to the exact string `joana 123` and ensure `verifyAdminLogin` compares via direct equality without stripping/collapsing whitespace.
+- Update frontend admin credential validation (including `useAdminPasswordGate`) to accept only `joana/joana123` and reject the legacy spaced password `joana 123`.
+- Update backend credential verification (`verifyAdminLogin`) to accept only `joana/joana123` and reject `joana 123`.
+- Ensure successful login refreshes/updates admin permission checks so `AdminAccessGate` immediately allows admin routes (Inventory, Expenses) for the same session/identity; show an error if verification succeeds but backend admin status still fails after refetch.
+- Validate and adjust the owner/admin navigation flow: Profile “PAINEL DO DONO” routes to Admin Login when not authenticated, and routes directly to Inventory when authenticated; blocked admin routes provide a working path to Admin Login and a re-login action when permissions are missing.
 
-**User-visible outcome:** Admins can successfully log in using username `joana` and password `joana 123` (including the internal space), including when accidental leading/trailing spaces are present.
+**User-visible outcome:** Logging in with `joana/joana123` grants immediate access to admin pages (Inventory/Expenses) via “PAINEL DO DONO”, while `joana/joana 123` is rejected and blocked admin pages guide the user to re-authenticate.

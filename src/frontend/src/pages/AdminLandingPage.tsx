@@ -10,7 +10,7 @@ interface AdminLandingPageProps {
 
 export function AdminLandingPage({ onNavigate }: AdminLandingPageProps) {
   return (
-    <AdminAccessGate>
+    <AdminAccessGate onNavigate={onNavigate}>
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <div className="p-3 rounded-full bg-primary/10">

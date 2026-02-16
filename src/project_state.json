@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 15,
+  "projectStateVersion": 23,
   "summary": "High-end beauty salon management app in Portuguese with an elegant luxury dark-mode gold/black aesthetic, featuring a conversion-focused home screen (carousel + category grid + WhatsApp CTA) and simplified internal management: appointment agenda, inventory (admin-only card UI), service catalog with pricing, client loyalty/preferences, portfolio photo uploads, client status updates, and a basic expenses dashboard (entradas vs. saídas).",
   "architectural_notes": [
     "UI/UX must be elegant and sophisticated using a gold, black, and white color palette.",
@@ -18,7 +18,11 @@
     "Deployment/domain configuration errors: domain name must be 5–50 characters and contain only letters, numbers, and hyphens (previous attempted domains failed validation).",
     "Profile page: 'Área Administrativa' button is not appearing for the salon owner (admin entry point missing/hidden).",
     "Admin login: credentials (joana/joana123) are being rejected with 'senha errada' (login flow failing).",
-    "Admin login: verifyLogin in hooks/useAdminPasswordGate.ts is not accepting the intended credentials when the password includes an internal space ('joana 123')."
+    "Admin login: verifyLogin in hooks/useAdminPasswordGate.ts is not accepting the intended credentials when the password includes an internal space ('joana 123').",
+    "After successful login with credentials (joana / \"joana 123\"), user still receives 'Access Denied' / 'Você não tem permissão de acesso à página' when attempting to access admin pages (role/route protection/admin gate not being granted).",
+    "User reports the issue persists in the latest deployed build (v8): still getting 'Acesso negado' when attempting to access the admin area after logging in as joana.",
+    "Admin login stopped working completely in v9; reset auth logic per strict credentials ('joana' / 'joana 123') and ensure AdminPasswordDialog handleSubmit calls verifyLogin and onSuccess() on success, and global auth state isAuthenticated/role updates accordingly.",
+    "Credential spec mismatch/regression: project must use admin credentials joana/joana123 (no space) and ensure admin pages are accessible after successful login (no 'Acesso negado')."
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -253,6 +257,102 @@
         "REQ-34"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-ensure-the-admin-credentials-are-treated-as-exactly-username-joana-and-password-joana-123-single-internal-space-end-to-end-and-that-normalization-trims-only-leading-trailing-whitespace-without-altering-internal-whitespace",
+      "title": "Ensure the admin credentials are treated as exactly username \"joana\" and password \"joana 123\" (single internal space) end-to-end, and that normalization trims only leading/trailing whitespace without altering internal whitespace.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-admin-login-flow-s-adminloginpage-and-adminpassworddialog-via-useadminpasswordgate-so-that-a-successful-credential-verification-also-triggers-backend-admin-role-granting-for-the-current-caller-and-refreshes-any-cached-admin-permission-checks-used-by-adminaccessgate",
+      "title": "Update the frontend admin login flow(s) (AdminLoginPage and AdminPasswordDialog via useAdminPasswordGate) so that a successful credential verification also triggers backend admin-role granting for the current caller and refreshes any cached admin/permission checks used by AdminAccessGate.",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-align-admin-gating-so-that-the-admin-pages-inventory-expenses-admin-landing-are-accessible-when-and-only-when-the-caller-has-admin-permission-and-the-admin-password-session-is-validated-ensure-the-ui-does-not-incorrectly-block-the-specific-joana-admin-after-successful-login",
+      "title": "Align admin gating so that the admin pages (Inventory, Expenses, Admin Landing) are accessible when (and only when) the caller has admin permission AND the admin-password session is validated; ensure the UI does not incorrectly block the specific \"joana\" admin after successful login.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-harden-the-frontend-admin-login-flow-frontend-src-pages-adminloginpage-tsx-via-useadminpasswordgate-so-that-it-does-not-navigate-to-admin-pages-until-both-conditions-are-true-1-the-password-session-is-validated-and-2-the-backend-admin-permission-check-isadmin-from-useadmin-is-confirmed-true-after-login-if-credential-verification-returns-true-but-admin-permission-is-still-false-after-refetch-show-a-clear-error-state-and-do-not-proceed-to-inventory-expenses-admin-pages",
+      "title": "Harden the frontend admin login flow (`frontend/src/pages/AdminLoginPage.tsx` via `useAdminPasswordGate`) so that it does not navigate to admin pages until both conditions are true: (1) the password session is validated, and (2) the backend admin permission check (`isAdmin` from `useAdmin`) is confirmed true after login. If credential verification returns true but admin permission is still false after refetch, show a clear error state and do not proceed to Inventory/Expenses/Admin pages.",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-the-admin-gate-ux-frontend-src-components-admin-adminaccessgate-tsx-to-reduce-confusion-when-access-is-blocked-by-distinguishing-between-a-missing-backend-admin-permission-and-b-missing-password-session-validation-and-provide-actionable-navigation-buttons-to-the-correct-entry-points-e-g-to-the-admin-login-page-using-the-existing-app-tsx-page-navigation-pattern",
+      "title": "Improve the admin gate UX (`frontend/src/components/admin/AdminAccessGate.tsx`) to reduce confusion when access is blocked by distinguishing between (a) missing backend admin permission and (b) missing password-session validation, and provide actionable navigation buttons to the correct entry points (e.g., to the Admin Login page) using the existing `App.tsx` page navigation pattern.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-frontend-src-hooks-useadminpasswordgate-ts-so-verifylogin-username-password-accepts-only-the-exact-credentials-username-joana-and-password-joana-123-single-internal-space-and-returns-true-only-for-that-exact-pair-remove-any-trim-normalization-logic-from-the-verification-path-so-the-internal-space-in-the-password-is-never-altered",
+      "title": "Update `frontend/src/hooks/useAdminPasswordGate.ts` so `verifyLogin(username, password)` accepts **only** the exact credentials username `\"joana\"` and password `\"joana 123\"` (single internal space) and returns `true` only for that exact pair. Remove any `trim()`/normalization logic from the verification path so the internal space in the password is never altered.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-requested-global-authentication-state-update-on-successful-login-when-credentials-are-valid-force-global-auth-state-to-isauthenticated-true-and-set-role-admin-persist-this-state-in-a-stable-frontend-location-e-g-sessionstorage-and-expose-it-from-useadminpasswordgate-or-an-equivalent-shared-hook-state-so-other-components-can-read-it-ensure-logout-clear-actions-reset-isauthenticated-and-role",
+      "title": "Implement the requested global authentication state update on successful login: when credentials are valid, force global auth state to `isAuthenticated = true` and set `role = 'admin'`. Persist this state in a stable frontend location (e.g., `sessionStorage`) and expose it from `useAdminPasswordGate` (or an equivalent shared hook/state) so other components can read it. Ensure logout/clear actions reset `isAuthenticated` and `role`.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-frontend-src-components-admin-adminpassworddialog-tsx-submission-flow-so-handlesubmit-calls-verifylogin-username-password-correctly-and-when-isvalid-is-true-it-reliably-calls-onsuccess-after-closing-the-dialog-also-remove-any-trim-based-required-field-checks-in-this-dialog-that-could-interfere-with-the-exact-password-handling-and-ensure-variable-names-used-in-the-component-match-the-hook-function-signature-username-password",
+      "title": "Fix `frontend/src/components/admin/AdminPasswordDialog.tsx` submission flow so `handleSubmit` calls `verifyLogin(username, password)` correctly and, when `isValid` is `true`, it reliably calls `onSuccess()` after closing the dialog. Also remove any `trim()`-based required-field checks in this dialog that could interfere with the exact password handling, and ensure variable names used in the component match the hook function signature (username/password).",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-admin-credential-validation-to-accept-only-username-joana-and-password-joana123-no-internal-space-end-to-end-aligning-frontend-verification-useadminpasswordgate-with-backend-verification-verifyadminlogin",
+      "title": "Update admin credential validation to accept ONLY username \"joana\" and password \"joana123\" (no internal space) end-to-end, aligning frontend verification (useAdminPasswordGate) with backend verification (verifyAdminLogin).",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-a-successful-admin-login-reliably-grants-backend-admin-permissions-for-the-current-caller-and-refreshes-any-cached-admin-checks-so-adminaccessgate-immediately-allows-entry-to-admin-pages-after-login",
+      "title": "Ensure a successful admin login reliably grants backend admin permissions for the current caller and refreshes any cached admin checks so AdminAccessGate immediately allows entry to admin pages after login.",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-any-frontend-logic-that-hardcodes-or-assumes-the-old-spaced-password-joana-123-including-strict-checks-and-any-copy-error-flows-that-depend-on-the-old-credential-spec-while-keeping-the-existing-admin-session-persistence-behavior-sessionstorage-state-isauthenticated-role",
+      "title": "Remove any frontend logic that hardcodes or assumes the old spaced password (\"joana 123\"), including strict checks and any copy/error flows that depend on the old credential spec, while keeping the existing admin session persistence behavior (sessionStorage state: isAuthenticated/role).",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-validate-the-end-to-end-navigation-flow-for-owner-admin-access-profile-painel-do-dono-admin-login-when-not-validated-inventory-after-successful-login-and-ensure-adminaccessgate-provides-a-clear-path-to-admin-login-when-blocked",
+      "title": "Validate the end-to-end navigation flow for owner/admin access: Profile \"PAINEL DO DONO\" -> Admin Login (when not validated) -> Inventory (after successful login), and ensure AdminAccessGate provides a clear path to Admin Login when blocked.",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -369,17 +469,17 @@
       "status": "pending"
     },
     {
-      "id": "AR-33",
-      "summary": "Update verifyLogin in hooks/useAdminPasswordGate.ts to accept credentials username 'joana' and password 'joana 123' (with the internal space) as valid, ensuring comparison preserves internal spaces and returns true for this exact input.",
-      "reqIds": [],
+      "id": "AR-40",
+      "summary": "Ensure admin authorization state is persisted correctly across canister upgrades so that (a) the configured admin credentials and (b) any granted admin permissions are not lost after redeploy/upgrade. Update `backend/migration.mo` only if required by the project migration policy to preserve/initialize any new stable state introduced to support admin persistence.",
+      "reqIds": [
+        "REQ-41"
+      ],
       "status": "pending"
     },
     {
-      "id": "AR-36",
-      "summary": "Update the backend stored admin password default in `backend/main.mo` to exactly \"joana 123\" (including the internal space) so that `verifyAdminLogin` compares against the new intended password without ignoring spaces.",
-      "reqIds": [
-        "REQ-35"
-      ],
+      "id": "AR-45",
+      "summary": "Padronizar e corrigir o login admin para aceitar apenas as credenciais exatas Usuário \"joana\" e Senha \"joana123\" (sem espaço) end-to-end (frontend + backend) e liberar acesso ao Painel/Admin (Inventory/Expenses) após login bem-sucedido",
+      "reqIds": [],
       "status": "pending"
     }
   ],

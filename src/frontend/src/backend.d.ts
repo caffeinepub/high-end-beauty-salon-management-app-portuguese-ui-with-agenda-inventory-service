@@ -96,7 +96,6 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     setServiceStatus(id: ServiceID, active: boolean): Promise<void>;
-    updateAdminCredentials(currentPassword: string, newUsername: string | null, newPassword: string | null, confirmPassword: string | null): Promise<void>;
     updateLoyaltyPoints(clientId: ClientID, newPoints: bigint): Promise<void>;
     updateProductQuantity(id: ProductID, newQuantity: number): Promise<void>;
     updateTransaction(id: bigint, amount: number, category: string, isExpense: boolean, description: string): Promise<void>;

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Plus, Search, Users as UsersIcon, Crown } from 'lucide-react';
 import { useClientes, type Client } from '../hooks/useClientes';
 import { ClientFormDialog } from '../components/clientes/ClientFormDialog';
@@ -53,118 +54,109 @@ export function FidelidadeClientesPage({ onNavigate }: FidelidadeClientesPagePro
       </div>
 
       {/* Owner Panel Button - Always visible at top */}
-      <Card className="border-primary bg-gradient-to-r from-primary/10 to-primary/5">
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+        <CardHeader>
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-full bg-primary/20">
                 <Crown className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-bold text-lg">Owner Access</h3>
-                <p className="text-sm text-muted-foreground">
-                  Exclusive access to inventory and financial management
-                </p>
+                <CardTitle className="text-xl">PAINEL DO DONO</CardTitle>
+                <CardDescription>
+                  Acesso administrativo completo
+                </CardDescription>
               </div>
             </div>
             <Button
-              size="lg"
               onClick={handleOwnerPanelClick}
-              className="gap-2 font-bold min-w-[200px]"
+              size="lg"
+              className="gap-2"
             >
-              <Crown className="h-5 w-5" />
-              PAINEL DO DONO
+              Acessar
             </Button>
           </div>
-        </CardContent>
+        </CardHeader>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Clients List */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Clientes</CardTitle>
-            <CardDescription>
-              {filteredClients.length} {filteredClients.length === 1 ? 'cliente' : 'clientes'}
-            </CardDescription>
-            <div className="relative mt-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar clientes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
+      {/* Clients Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <UsersIcon className="h-6 w-6 text-primary" />
+              <div>
+                <CardTitle>Clientes</CardTitle>
+                <CardDescription>
+                  {clients.length} {clients.length === 1 ? 'cliente cadastrado' : 'clientes cadastrados'}
+                </CardDescription>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">
-                Carregando clientes...
-              </div>
-            ) : filteredClients.length === 0 ? (
-              <div className="text-center py-8">
-                <UsersIcon className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-                <p className="text-sm text-muted-foreground mb-3">
-                  {searchTerm ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}
-                </p>
-                {!searchTerm && (
-                  <Button onClick={() => setIsCreateDialogOpen(true)} size="sm" className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Adicionar Cliente
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {filteredClients.map((client) => (
-                  <button
-                    key={client.id.toString()}
-                    onClick={() => setSelectedClient(client)}
-                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                      selectedClient?.id === client.id
-                        ? 'bg-primary/10 border-primary'
-                        : 'hover:bg-muted border-transparent'
-                    }`}
-                  >
-                    <div className="font-medium">{client.name}</div>
-                    <div className="text-sm text-muted-foreground truncate">
-                      {client.contactInfo}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {client.loyaltyPoints.toString()} pontos
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nome ou contato..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-        {/* Client Detail */}
-        <div className="lg:col-span-2">
-          {selectedClient ? (
-            <ClientDetailPanel client={selectedClient} />
+          {isLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Carregando clientes...
+            </div>
+          ) : filteredClients.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              {searchTerm ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado ainda'}
+            </div>
           ) : (
-            <Card>
-              <CardContent className="pt-12 pb-12">
-                <div className="text-center">
-                  <UsersIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Selecione um cliente</h3>
-                  <p className="text-muted-foreground">
-                    Escolha um cliente da lista para ver detalhes
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="space-y-2">
+              {filteredClients.map((client) => (
+                <button
+                  key={client.id}
+                  onClick={() => setSelectedClient(client)}
+                  className="w-full text-left p-4 rounded-lg border bg-card hover:bg-accent transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold">{client.name}</h3>
+                      <p className="text-sm text-muted-foreground">{client.contactInfo}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-primary">
+                        {client.loyaltyPoints} pontos
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {client.visitHistory.length} {client.visitHistory.length === 1 ? 'visita' : 'visitas'}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <ClientFormDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
       />
+
+      <Sheet open={!!selectedClient} onOpenChange={(open) => !open && setSelectedClient(null)}>
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Detalhes do Cliente</SheetTitle>
+          </SheetHeader>
+          <div className="mt-6">
+            {selectedClient && <ClientDetailPanel client={selectedClient} />}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

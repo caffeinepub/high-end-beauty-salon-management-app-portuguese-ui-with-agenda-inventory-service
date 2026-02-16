@@ -1,72 +1,103 @@
 {
   "kind": "build_request",
-  "title": "Accept admin password with internal space for verifyLogin",
-  "priority": "normal",
+  "title": "Fix admin login credentials to joana/joana123 (no space) and unblock Admin panel access",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-33",
-      "text": "Update the admin credential validation so that username \"joana\" and password \"joana 123\" (with a single internal space) are treated as valid credentials end-to-end (frontend verifyLogin -> backend verifyAdminLogin).",
+      "id": "REQ-47",
+      "text": "Update admin credential validation to accept ONLY username \"joana\" and password \"joana123\" (no internal space) end-to-end, aligning frontend verification (useAdminPasswordGate) with backend verification (verifyAdminLogin).",
       "target": "both",
       "source": {
         "messageIds": [
-          "msg-9"
+          "msg-4"
         ],
         "quotes": [
-          "altere o arquivo useAdminPasswordGate.ts para que o usuário 'joana' e a senha 'joana 123' (com o espaço entre o nome e o número) sejam considerados válidos."
+          "refaca toda estrutura de codigos e corrija usuario joana e senha joana123 sem espaco e em seguida libere acesso ao painel do admin ok?"
         ]
       },
       "acceptanceCriteria": [
-        "Calling frontend `verifyLogin('joana', 'joana 123')` returns `true`.",
-        "Logging in via the Admin Login form using username \"joana\" and password \"joana 123\" succeeds and sets the validated admin session state.",
-        "The backend method `verifyAdminLogin('joana', 'joana 123')` returns `true`."
+        "Calling frontend admin login with username \"joana\" and password \"joana123\" succeeds.",
+        "Calling frontend admin login with username \"joana\" and password \"joana 123\" (with a space) fails.",
+        "Calling backend verifyAdminLogin(\"joana\",\"joana123\") returns true.",
+        "Calling backend verifyAdminLogin(\"joana\",\"joana 123\") returns false."
       ]
     },
     {
-      "id": "REQ-34",
-      "text": "Ensure the credential normalization in `frontend/src/hooks/useAdminPasswordGate.ts` does not remove or collapse internal whitespace in the password; it may only trim leading/trailing whitespace before calling `actor.verifyAdminLogin`.",
+      "id": "REQ-48",
+      "text": "Ensure a successful admin login reliably grants backend admin permissions for the current caller and refreshes any cached admin checks so AdminAccessGate immediately allows entry to admin pages after login.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "...em seguida libere acesso ao painel do admin ok?"
+        ]
+      },
+      "acceptanceCriteria": [
+        "After a successful login (joana/joana123), the next isCallerAdmin check returns true for the same session/identity without requiring a redeploy.",
+        "After successful login, navigating to Inventory and Expenses pages renders admin functionality (no access denied screen).",
+        "If verifyAdminLogin returns true but isCallerAdmin remains false after refetch, the UI shows an error and does not navigate into admin pages."
+      ]
+    },
+    {
+      "id": "REQ-49",
+      "text": "Remove any frontend logic that hardcodes or assumes the old spaced password (\"joana 123\"), including strict checks and any copy/error flows that depend on the old credential spec, while keeping the existing admin session persistence behavior (sessionStorage state: isAuthenticated/role).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-9"
+          "msg-4"
         ],
         "quotes": [
-          "Certifique-se de que a lógica de comparação não ignore o espaço na senha e retorne true quando esses dados forem inseridos."
+          "...corrija usuario joana e senha joana123 sem espaco..."
         ]
       },
       "acceptanceCriteria": [
-        "`useAdminPasswordGate.verifyLogin` must not apply any normalization that removes internal spaces (e.g., no regex that strips `\\s` globally).",
-        "`verifyLogin('joana', 'joana 123')` succeeds, while `verifyLogin('joana', 'joana123')` does not succeed (space is significant).",
-        "`verifyLogin(' joana ', ' joana 123 ')` succeeds (leading/trailing whitespace is still trimmed)."
+        "No frontend file rejects the correct password \"joana123\" due to legacy checks for \"joana 123\".",
+        "Admin session state persists in sessionStorage as before (admin_auth_state with isAuthenticated=true and role='admin') after successful login.",
+        "Clearing validation/logging out resets isAuthenticated to false and role to null and re-blocks admin pages."
       ]
     },
     {
-      "id": "REQ-35",
-      "text": "Update the backend stored admin password default in `backend/main.mo` to exactly \"joana 123\" (including the internal space) so that `verifyAdminLogin` compares against the new intended password without ignoring spaces.",
-      "target": "backend",
+      "id": "REQ-50",
+      "text": "Validate the end-to-end navigation flow for owner/admin access: Profile \"PAINEL DO DONO\" -> Admin Login (when not validated) -> Inventory (after successful login), and ensure AdminAccessGate provides a clear path to Admin Login when blocked.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-9"
+          "msg-4"
         ],
         "quotes": [
-          "o usuário 'joana' e a senha 'joana 123' (com o espaço entre o nome e o número) sejam considerados válidos"
+          "...libere acesso ao painel do admin ok?"
         ]
       },
       "acceptanceCriteria": [
-        "`adminPassword` is set to the exact string \"joana 123\" in the backend.",
-        "`verifyAdminLogin` performs a direct equality comparison that preserves internal spaces (no whitespace stripping on the backend)."
+        "When admin session is not validated, tapping \"PAINEL DO DONO\" navigates to the Admin Login page.",
+        "When admin session is validated, tapping \"PAINEL DO DONO\" navigates directly to Inventory.",
+        "If a user lands on an admin page without being authenticated, AdminAccessGate shows an auth-required state and provides a working button to navigate to Admin Login.",
+        "If authenticated but lacking backend admin permission, AdminAccessGate offers a working re-login action that clears validation and routes to Admin Login."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under `frontend/src/components/ui` or any other paths listed in `frontend.immutablePaths`.",
-    "Keep all Motoko logic within the single main actor (`backend/main.mo`); only add `backend/migration.mo` if strictly required for state upgrades."
+    "Do not edit files under frontend/immutablePaths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "Backend must remain a single Motoko actor in backend/main.mo; only add backend/migration.mo if introducing new stable state that requires migration."
   ],
   "nonGoals": [
-    "Adding new authentication providers or changing the existing admin-gate architecture beyond updating the accepted credential value.",
-    "Implementing password hashing or additional security mechanisms."
+    "Do not redesign the app UI/theme or change unrelated salon-management features (agenda, services, clients, inventory data model) beyond what is needed to fix admin login/access.",
+    "Do not add third-party authentication providers; keep Internet Identity + the existing manual admin credential flow."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

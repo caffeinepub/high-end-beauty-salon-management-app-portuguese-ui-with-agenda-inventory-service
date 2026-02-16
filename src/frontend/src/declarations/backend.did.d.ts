@@ -134,10 +134,6 @@ export interface _SERVICE {
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'setServiceStatus' : ActorMethod<[ServiceID, boolean], undefined>,
-  'updateAdminCredentials' : ActorMethod<
-    [string, [] | [string], [] | [string], [] | [string]],
-    undefined
-  >,
   'updateLoyaltyPoints' : ActorMethod<[ClientID, bigint], undefined>,
   'updateProductQuantity' : ActorMethod<[ProductID, number], undefined>,
   'updateTransaction' : ActorMethod<

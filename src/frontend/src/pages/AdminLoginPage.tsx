@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AlertCircle, Lock, ArrowLeft } from 'lucide-react';
 import { useAdminPasswordGate } from '../hooks/useAdminPasswordGate';
+import { useAdmin } from '../hooks/useAdmin';
 import { type PageView } from '../App';
 
 interface AdminLoginPageProps {
@@ -15,35 +16,61 @@ export function AdminLoginPage({ onNavigate }: AdminLoginPageProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { verifyLogin, isVerifying } = useAdminPasswordGate();
+  const [isCheckingPermission, setIsCheckingPermission] = useState(false);
+  const { verifyLogin, isVerifying, clearValidation } = useAdminPasswordGate();
+  const { refetch: refetchAdmin } = useAdmin();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // Only trim leading/trailing whitespace, preserve internal spaces
-    const normalizedUsername = username.trim();
-    const normalizedPassword = password.trim();
-
-    if (!normalizedUsername || !normalizedPassword) {
+    if (!username || !password) {
       setError('Please enter both username and password');
       return;
     }
 
     try {
-      const isValid = await verifyLogin(normalizedUsername, normalizedPassword);
+      const isValid = await verifyLogin(username, password);
+      
       if (isValid) {
-        // Navigate to inventory on success
-        onNavigate('inventory');
+        // Explicitly refetch admin permission after successful login
+        setIsCheckingPermission(true);
+        const { data: isAdmin } = await refetchAdmin();
+        setIsCheckingPermission(false);
+        
+        if (isAdmin) {
+          // Admin permission confirmed, navigate to inventory
+          onNavigate('inventory');
+        } else {
+          // Login succeeded but admin permission not granted
+          setError('Admin access was not granted. Please retry or contact support.');
+          setPassword('');
+          // Clear the validated session so user can retry
+          clearValidation();
+        }
       } else {
         setError('Invalid username or password. Please try again.');
         setPassword('');
       }
-    } catch (err) {
-      setError('Error verifying credentials. Please try again.');
+    } catch (err: any) {
+      setIsCheckingPermission(false);
+      if (err.message === 'Actor not available') {
+        setError('Backend is not available. Please try again later.');
+      } else {
+        setError('Error verifying credentials. Please try again.');
+      }
       console.error('Login verification error:', err);
     }
   };
+
+  const handleRetry = () => {
+    setError('');
+    setUsername('');
+    setPassword('');
+    clearValidation();
+  };
+
+  const isProcessing = isVerifying || isCheckingPermission;
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center p-4">
@@ -82,7 +109,7 @@ export function AdminLoginPage({ onNavigate }: AdminLoginPageProps) {
                     setUsername(e.target.value);
                     setError('');
                   }}
-                  disabled={isVerifying}
+                  disabled={isProcessing}
                   autoFocus
                   autoComplete="username"
                 />
@@ -99,15 +126,27 @@ export function AdminLoginPage({ onNavigate }: AdminLoginPageProps) {
                     setPassword(e.target.value);
                     setError('');
                   }}
-                  disabled={isVerifying}
+                  disabled={isProcessing}
                   autoComplete="current-password"
                 />
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive">
-                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  <span className="text-sm">{error}</span>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-sm">{error}</span>
+                  </div>
+                  {error.includes('Admin access was not granted') && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleRetry}
+                    >
+                      Retry Login
+                    </Button>
+                  )}
                 </div>
               )}
 
@@ -115,9 +154,9 @@ export function AdminLoginPage({ onNavigate }: AdminLoginPageProps) {
                 type="submit"
                 className="w-full"
                 size="lg"
-                disabled={isVerifying}
+                disabled={isProcessing}
               >
-                {isVerifying ? 'Verifying...' : 'Login'}
+                {isVerifying ? 'Verifying...' : isCheckingPermission ? 'Checking permissions...' : 'Login'}
               </Button>
             </form>
           </CardContent>

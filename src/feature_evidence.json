@@ -2,8 +2,29 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-admin-credential-validation-so-that-username-joana-and-password-joana-123-with-a-single-internal-space-are-treated-as-valid-credentials-end-to-end-frontend-verifylogin-backend-verifyadminlogin",
-      "featureTitle": "Update the admin credential validation so that username \"joana\" and password \"joana 123\" (with a single internal space) are treated as valid credentials end-to-end (frontend verifyLogin -> backend verifyAdminLogin).",
+      "featureId": "feature-update-admin-credential-validation-to-accept-only-username-joana-and-password-joana123-no-internal-space-end-to-end-aligning-frontend-verification-useadminpasswordgate-with-backend-verification-verifyadminlogin",
+      "featureTitle": "Update admin credential validation to accept ONLY username \"joana\" and password \"joana123\" (no internal space) end-to-end, aligning frontend verification (useAdminPasswordGate) with backend verification (verifyAdminLogin).",
+      "files": [
+        "frontend/src/hooks/useAdminPasswordGate.ts",
+        "frontend/src/pages/AdminLoginPage.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-47"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-a-successful-admin-login-reliably-grants-backend-admin-permissions-for-the-current-caller-and-refreshes-any-cached-admin-checks-so-adminaccessgate-immediately-allows-entry-to-admin-pages-after-login",
+      "featureTitle": "Ensure a successful admin login reliably grants backend admin permissions for the current caller and refreshes any cached admin checks so AdminAccessGate immediately allows entry to admin pages after login.",
       "files": [
         "frontend/src/components/admin/AdminPasswordDialog.tsx",
         "frontend/src/hooks/useAdminPasswordGate.ts",
@@ -19,15 +40,16 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-33"
+        "REQ-48"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-credential-normalization-in-frontend-src-hooks-useadminpasswordgate-ts-does-not-remove-or-collapse-internal-whitespace-in-the-password-it-may-only-trim-leading-trailing-whitespace-before-calling-actor-verifyadminlogin",
-      "featureTitle": "Ensure the credential normalization in `frontend/src/hooks/useAdminPasswordGate.ts` does not remove or collapse internal whitespace in the password; it may only trim leading/trailing whitespace before calling `actor.verifyAdminLogin`.",
+      "featureId": "feature-remove-any-frontend-logic-that-hardcodes-or-assumes-the-old-spaced-password-joana-123-including-strict-checks-and-any-copy-error-flows-that-depend-on-the-old-credential-spec-while-keeping-the-existing-admin-session-persistence-behavior-sessionstorage-state-isauthenticated-role",
+      "featureTitle": "Remove any frontend logic that hardcodes or assumes the old spaced password (\"joana 123\"), including strict checks and any copy/error flows that depend on the old credential spec, while keeping the existing admin session persistence behavior (sessionStorage state: isAuthenticated/role).",
       "files": [
-        "frontend/src/hooks/useAdminPasswordGate.ts"
+        "frontend/src/hooks/useAdminPasswordGate.ts",
+        "frontend/src/pages/AdminLoginPage.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -39,7 +61,27 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-34"
+        "REQ-49"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-validate-the-end-to-end-navigation-flow-for-owner-admin-access-profile-painel-do-dono-admin-login-when-not-validated-inventory-after-successful-login-and-ensure-adminaccessgate-provides-a-clear-path-to-admin-login-when-blocked",
+      "featureTitle": "Validate the end-to-end navigation flow for owner/admin access: Profile \"PAINEL DO DONO\" -> Admin Login (when not validated) -> Inventory (after successful login), and ensure AdminAccessGate provides a clear path to Admin Login when blocked.",
+      "files": [
+        "frontend/src/pages/FidelidadeClientesPage.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-50"
       ],
       "confidence": "high"
     }

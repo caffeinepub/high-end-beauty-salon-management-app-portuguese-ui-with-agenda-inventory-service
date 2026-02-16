@@ -1,27 +1,36 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T01:45:02.910Z",
-  "summary": "The diff implements the requested admin credential change end-to-end: backend default password is now exactly \"joana 123\" and backend comparison preserves internal spaces; the frontend hook trims only leading/trailing whitespace (preserving internal spaces) before calling `verifyAdminLogin`.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-16T03:01:14.471Z",
+  "summary": "Diff updates backend and frontend to use exact admin credentials joana/joana123 and adds post-login permission refetch logic, but evidence is insufficient that AdminAccessGate was updated to provide the required blocked-state navigation/re-login actions, and some new AdminLoginPage UI strings appear unrelated (English copy).",
+  "missing_requirements": [
     {
-      "description": "Introduced a backend state migration module and wired `backend/main.mo` to use it to overwrite `adminPassword` to \"joana 123\" on migration.",
-      "reason": "The BuildRequest allowed adding `backend/migration.mo` only if strictly required for upgrades, but no requirement explicitly requested adding/wiring a migration system; this is additional implementation beyond the stated requirements.",
+      "id": "REQ-50",
+      "requirement": "Ensure AdminAccessGate provides an auth-required state with a working button to navigate to Admin Login when blocked, and offers a working re-login action that clears validation and routes to Admin Login when authenticated but lacking backend admin permission.",
+      "reason": "The diff shows changes to login flow and profile owner-panel navigation, but does not show any changes to the AdminAccessGate component itself (or equivalent gate UI) implementing the required blocked-state buttons/actions. File summaries mention Inventory page passes onNavigate to the gate, but do not provide evidence of the gate rendering the required CTAs.",
       "evidence": [
-        "backend/migration.mo",
-        "backend/main.mo"
+        "frontend-file-summaries.txt (mentions ControleDeEstoquePage passes onNavigate to gate)",
+        "frontend/src/pages/ControleDeEstoquePage.tsx (referenced only via summary, no gate UI evidence)"
       ]
     }
   ],
-  "confidence": 0.83,
+  "hallucinated_features": [
+    {
+      "description": "Introduced/expanded English user-facing copy in AdminLoginPage (e.g., error/help text and headings) rather than keeping Portuguese UI copy.",
+      "reason": "BuildRequest focuses on fixing admin credentials and access flow; it does not request changing UI language/copy. The diff shows multiple English strings in the admin login page.",
+      "evidence": [
+        "frontend/src/pages/AdminLoginPage.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.63,
   "changed_files": [
     "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/components/admin/AdminPasswordDialog.tsx",
     "frontend/src/hooks/useAdminPasswordGate.ts",
     "frontend/src/pages/AdminLoginPage.tsx",
+    "frontend/src/pages/FidelidadeClientesPage.tsx",
     "project_state.json"
   ]
 }

@@ -23,36 +23,56 @@ export function AdminPasswordDialog({ open, onOpenChange, onSuccess }: AdminPass
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { verifyLogin, isVerifying } = useAdminPasswordGate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent double submission
+    if (isSubmitting || isVerifying) return;
+    
     setError('');
 
-    // Only trim leading/trailing whitespace, preserve internal spaces
-    const normalizedUsername = username.trim();
-    const normalizedPassword = password.trim();
-
-    if (!normalizedUsername || !normalizedPassword) {
+    // Check for empty fields
+    if (username.length === 0 || password.length === 0) {
       setError('Por favor, insira usuário e senha');
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
-      const isValid = await verifyLogin(normalizedUsername, normalizedPassword);
+      // Pass username and password unchanged to verifyLogin
+      const isValid = await verifyLogin(username, password);
+      
       if (isValid) {
+        // Clear form
         setUsername('');
         setPassword('');
         setError('');
+        
+        // Close dialog first
         onOpenChange(false);
-        onSuccess();
+        
+        // Then call success callback
+        setTimeout(() => {
+          onSuccess();
+          setIsSubmitting(false);
+        }, 100);
       } else {
         setError('Credenciais incorretas. Tente novamente.');
         setPassword('');
+        setIsSubmitting(false);
       }
-    } catch (err) {
-      setError('Erro ao verificar credenciais. Tente novamente.');
+    } catch (err: any) {
+      if (err.message === 'Actor not available') {
+        setError('Backend não disponível. Tente novamente mais tarde.');
+      } else {
+        setError('Erro ao verificar credenciais. Tente novamente.');
+      }
       console.error('Login verification error:', err);
+      setIsSubmitting(false);
     }
   };
 
@@ -62,6 +82,8 @@ export function AdminPasswordDialog({ open, onOpenChange, onSuccess }: AdminPass
     setError('');
     onOpenChange(false);
   };
+
+  const isDisabled = isVerifying || isSubmitting;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -90,7 +112,7 @@ export function AdminPasswordDialog({ open, onOpenChange, onSuccess }: AdminPass
                   setUsername(e.target.value);
                   setError('');
                 }}
-                disabled={isVerifying}
+                disabled={isDisabled}
                 autoFocus
               />
             </div>
@@ -105,7 +127,7 @@ export function AdminPasswordDialog({ open, onOpenChange, onSuccess }: AdminPass
                   setPassword(e.target.value);
                   setError('');
                 }}
-                disabled={isVerifying}
+                disabled={isDisabled}
               />
             </div>
             {error && (
@@ -120,12 +142,12 @@ export function AdminPasswordDialog({ open, onOpenChange, onSuccess }: AdminPass
               type="button"
               variant="outline"
               onClick={handleCancel}
-              disabled={isVerifying}
+              disabled={isDisabled}
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isVerifying}>
-              {isVerifying ? 'Verificando...' : 'Acessar'}
+            <Button type="submit" disabled={isDisabled}>
+              {isDisabled ? 'Verificando...' : 'Acessar'}
             </Button>
           </DialogFooter>
         </form>

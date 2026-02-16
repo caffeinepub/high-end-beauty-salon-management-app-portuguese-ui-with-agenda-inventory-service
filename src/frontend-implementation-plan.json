@@ -1,47 +1,106 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Preserve internal whitespace for admin password validation (joana / joana 123)",
+  "title": "Fix admin credentials (joana/joana123) and unblock Admin panel access (frontend-only)",
   "requirements": [
     {
-      "id": "REQ-33",
-      "summary": "Ensure the admin login flow accepts username \"joana\" with password \"joana 123\" (single internal space) and correctly sets the validated admin session state.",
+      "id": "REQ-47",
+      "summary": "Align frontend admin credential validation to accept ONLY joana/joana123 (no space) and reject joana/joana 123, while still delegating final verification to backend verifyAdminLogin.",
       "acceptanceCriteria": [
-        "Calling frontend `verifyLogin('joana', 'joana 123')` returns `true`.",
-        "Logging in via the Admin Login form using username \"joana\" and password \"joana 123\" succeeds and sets the validated admin session state.",
-        "The backend method `verifyAdminLogin('joana', 'joana 123')` returns `true`."
+        "Calling frontend admin login with username \"joana\" and password \"joana123\" succeeds.",
+        "Calling frontend admin login with username \"joana\" and password \"joana 123\" (with a space) fails.",
+        "Calling backend verifyAdminLogin(\"joana\",\"joana123\") returns true.",
+        "Calling backend verifyAdminLogin(\"joana\",\"joana 123\") returns false."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useAdminPasswordGate.ts",
+          "operation": "modify",
+          "description": "Update the strict client-side precheck to ONLY allow username 'joana' with password 'joana123' (no internal space) before calling actor.verifyAdminLogin; ensure any legacy spaced-password assumptions/comments are removed and that the username/password are passed through without trimming/normalization."
+        },
+        {
+          "path": "frontend/src/pages/AdminLoginPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the Admin Login page relies on the updated useAdminPasswordGate behavior for validation and does not contain any legacy assumptions about the spaced password; keep user-facing error messaging consistent with the new credential spec."
+        }
+      ]
+    },
+    {
+      "id": "REQ-48",
+      "summary": "After successful admin login, immediately refresh admin permission checks so AdminAccessGate allows entry to admin pages in the same session/identity, and block navigation with a clear error if permissions do not update.",
+      "acceptanceCriteria": [
+        "After a successful login (joana/joana123), the next isCallerAdmin check returns true for the same session/identity without requiring a redeploy.",
+        "After successful login, navigating to Inventory and Expenses pages renders admin functionality (no access denied screen).",
+        "If verifyAdminLogin returns true but isCallerAdmin remains false after refetch, the UI shows an error and does not navigate into admin pages."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/AdminLoginPage.tsx",
           "operation": "modify",
-          "description": "Adjust admin form submission handling (and any local normalization) to preserve internal whitespace in the password while still trimming leading/trailing whitespace before calling `useAdminPasswordGate.verifyLogin`."
-        },
-        {
-          "path": "frontend/src/components/admin/AdminPasswordDialog.tsx",
-          "operation": "modify",
-          "description": "Ensure the admin credential dialog preserves internal whitespace in the password while still trimming only leading/trailing whitespace before calling `useAdminPasswordGate.verifyLogin`."
+          "description": "Keep/strengthen the post-login permission confirmation flow: after verifyLogin succeeds, force a fresh admin-permission refetch (useAdmin().refetch) and only navigate to 'inventory' when it returns true; otherwise show an error and clear the validated session so the user can re-login."
         },
         {
           "path": "frontend/src/hooks/useAdminPasswordGate.ts",
           "operation": "modify",
-          "description": "Confirm end-to-end `verifyLogin` passes the password through without collapsing/removing internal whitespace, and that successful verification persists validated state in session storage."
+          "description": "Ensure successful login invalidates cached admin permission queries (queryKey ['isAdmin']) so subsequent AdminAccessGate checks refetch immediately; confirm clearing validation also invalidates the same cache to prevent stale admin state."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminPasswordDialog.tsx",
+          "operation": "modify",
+          "description": "For any flows that use the admin password dialog, ensure a successful credential verification is followed by an immediate permission refresh strategy in the calling flow (or provide a clear integration point) so admin pages are not entered with stale isAdmin=false."
         }
       ]
     },
     {
-      "id": "REQ-34",
-      "summary": "Update `useAdminPasswordGate` credential normalization to only trim leading/trailing whitespace and never remove/collapse internal whitespace in the password.",
+      "id": "REQ-49",
+      "summary": "Remove any frontend logic hardcoding the old spaced password while preserving the existing sessionStorage admin session persistence behavior (admin_auth_state with isAuthenticated/role).",
       "acceptanceCriteria": [
-        "`useAdminPasswordGate.verifyLogin` must not apply any normalization that removes internal spaces (e.g., no regex that strips `\\s` globally).",
-        "`verifyLogin('joana', 'joana 123')` succeeds, while `verifyLogin('joana', 'joana123')` does not succeed (space is significant).",
-        "`verifyLogin(' joana ', ' joana 123 ')` succeeds (leading/trailing whitespace is still trimmed)."
+        "No frontend file rejects the correct password \"joana123\" due to legacy checks for \"joana 123\".",
+        "Admin session state persists in sessionStorage as before (admin_auth_state with isAuthenticated=true and role='admin') after successful login.",
+        "Clearing validation/logging out resets isAuthenticated to false and role to null and re-blocks admin pages."
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useAdminPasswordGate.ts",
           "operation": "modify",
-          "description": "Implement/keep a strict normalization approach that uses only `trim()` for username/password (no global whitespace replacement) before calling `actor.verifyAdminLogin`, explicitly preserving internal spaces in the password."
+          "description": "Remove/replace the legacy hardcoded password check for 'joana 123' with the correct 'joana123' check; preserve the existing admin_auth_state sessionStorage schema and behavior (isAuthenticated/role) and ensure clearValidation resets state to isAuthenticated=false and role=null."
+        },
+        {
+          "path": "frontend/src/pages/AdminLoginPage.tsx",
+          "operation": "modify",
+          "description": "Verify the login page does not implement any additional password-shape assumptions that would reject 'joana123'; keep the existing clearValidation behavior on permission failure and on explicit retry so admin pages become blocked again."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminAccessGate.tsx",
+          "operation": "modify",
+          "description": "Confirm gating continues to rely on sessionStorage-backed isAuthenticated/role from useAdminPasswordGate and backend isAdmin from useAdmin; ensure clearValidation usage reliably re-blocks admin content after logout/re-login actions."
+        }
+      ]
+    },
+    {
+      "id": "REQ-50",
+      "summary": "Validate and ensure navigation flow: Profile 'PAINEL DO DONO' -> Admin Login (when not validated) -> Inventory (after successful login), and ensure AdminAccessGate provides working actions to reach Admin Login when blocked.",
+      "acceptanceCriteria": [
+        "When admin session is not validated, tapping \"PAINEL DO DONO\" navigates to the Admin Login page.",
+        "When admin session is validated, tapping \"PAINEL DO DONO\" navigates directly to Inventory.",
+        "If a user lands on an admin page without being authenticated, AdminAccessGate shows an auth-required state and provides a working button to navigate to Admin Login.",
+        "If authenticated but lacking backend admin permission, AdminAccessGate offers a working re-login action that clears validation and routes to Admin Login."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/FidelidadeClientesPage.tsx",
+          "operation": "modify",
+          "description": "Confirm the 'PAINEL DO DONO' button routes to 'admin-login' when not validated and routes to 'inventory' when validated, matching the required flow and keeping logic consistent with useAdminPasswordGate session persistence."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminAccessGate.tsx",
+          "operation": "modify",
+          "description": "Ensure blocked states provide clear, working navigation actions: unauthenticated users can go to Admin Login; authenticated-but-not-admin users can clearValidation and navigate to Admin Login via the re-login action."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Verify routing/wiring remains intact for 'profile' -> 'admin-login' -> 'inventory' and that admin pages (inventory/expenses/admin landing) pass onNavigate into AdminAccessGate so its buttons can route correctly."
         }
       ]
     }

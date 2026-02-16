@@ -1,53 +1,74 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T01:45:02.914Z",
+  "generatedAt": "2026-02-16T03:01:14.475Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
-        "id": "REQ-33",
-        "summary": "Update the admin credential validation so that username \"joana\" and password \"joana 123\" (with a single internal space) are treated as valid credentials end-to-end (frontend verifyLogin -> backend verifyAdminLogin).",
+        "id": "REQ-47",
+        "summary": "Update admin credential validation to accept ONLY username \"joana\" and password \"joana123\" (no internal space) end-to-end, aligning frontend verification (useAdminPasswordGate) with backend verification (verifyAdminLogin).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/AdminLoginPage.tsx",
-          "frontend/src/components/admin/AdminPasswordDialog.tsx",
-          "frontend/src/hooks/useAdminPasswordGate.ts"
+          "frontend/src/hooks/useAdminPasswordGate.ts",
+          "frontend/src/pages/AdminLoginPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/AdminLoginPage.tsx",
-          "frontend/src/components/admin/AdminPasswordDialog.tsx",
-          "frontend/src/hooks/useAdminPasswordGate.ts"
+          "frontend/src/hooks/useAdminPasswordGate.ts",
+          "frontend/src/pages/AdminLoginPage.tsx"
         ]
       },
       {
-        "id": "REQ-34",
-        "summary": "Ensure the credential normalization in `frontend/src/hooks/useAdminPasswordGate.ts` does not remove or collapse internal whitespace in the password; it may only trim leading/trailing whitespace before calling `actor.verifyAdminLogin`.",
+        "id": "REQ-48",
+        "summary": "Ensure a successful admin login reliably grants backend admin permissions for the current caller and refreshes any cached admin checks so AdminAccessGate immediately allows entry to admin pages after login.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useAdminPasswordGate.ts"
+          "frontend/src/pages/AdminLoginPage.tsx",
+          "frontend/src/hooks/useAdminPasswordGate.ts",
+          "frontend/src/components/admin/AdminPasswordDialog.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useAdminPasswordGate.ts"
+          "frontend/src/pages/AdminLoginPage.tsx",
+          "frontend/src/hooks/useAdminPasswordGate.ts",
+          "frontend/src/components/admin/AdminPasswordDialog.tsx"
         ]
       },
       {
-        "id": "REQ-35",
-        "summary": "Update the backend stored admin password default in `backend/main.mo` to exactly \"joana 123\" (including the internal space) so that `verifyAdminLogin` compares against the new intended password without ignoring spaces.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "id": "REQ-49",
+        "summary": "Remove any frontend logic that hardcodes or assumes the old spaced password (\"joana 123\"), including strict checks and any copy/error flows that depend on the old credential spec, while keeping the existing admin session persistence behavior (sessionStorage state: isAuthenticated/role).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useAdminPasswordGate.ts",
+          "frontend/src/pages/AdminLoginPage.tsx",
+          "frontend/src/components/admin/AdminAccessGate.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useAdminPasswordGate.ts",
+          "frontend/src/pages/AdminLoginPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-50",
+        "summary": "Validate the end-to-end navigation flow for owner/admin access: Profile \"PAINEL DO DONO\" -> Admin Login (when not validated) -> Inventory (after successful login), and ensure AdminAccessGate provides a clear path to Admin Login when blocked.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/FidelidadeClientesPage.tsx",
+          "frontend/src/components/admin/AdminAccessGate.tsx",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/FidelidadeClientesPage.tsx"
+        ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
@@ -55,6 +76,7 @@
     "frontend/src/components/admin/AdminPasswordDialog.tsx",
     "frontend/src/hooks/useAdminPasswordGate.ts",
     "frontend/src/pages/AdminLoginPage.tsx",
+    "frontend/src/pages/FidelidadeClientesPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

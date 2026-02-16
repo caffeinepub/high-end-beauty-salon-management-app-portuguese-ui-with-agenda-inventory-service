@@ -9,8 +9,13 @@ import { StockAdjustDialog } from '../components/estoque/StockAdjustDialog';
 import { ProductCard } from '../components/estoque/ProductCard';
 import { AdminAccessGate } from '../components/admin/AdminAccessGate';
 import { type Product } from '../backend';
+import { type PageView } from '../App';
 
-export function ControleDeEstoquePage() {
+interface ControleDeEstoquePageProps {
+  onNavigate?: (page: PageView) => void;
+}
+
+export function ControleDeEstoquePage({ onNavigate }: ControleDeEstoquePageProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -35,7 +40,7 @@ export function ControleDeEstoquePage() {
   };
 
   return (
-    <AdminAccessGate>
+    <AdminAccessGate onNavigate={onNavigate}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

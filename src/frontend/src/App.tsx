@@ -30,9 +30,9 @@ function App() {
       case 'admin-login':
         return <AdminLoginPage onNavigate={setCurrentPage} />;
       case 'inventory':
-        return <ControleDeEstoquePage />;
+        return <ControleDeEstoquePage onNavigate={setCurrentPage} />;
       case 'expenses':
-        return <ExpensesDashboardPage />;
+        return <ExpensesDashboardPage onNavigate={setCurrentPage} />;
       default:
         return <HomePage onNavigate={setCurrentPage} />;
     }
