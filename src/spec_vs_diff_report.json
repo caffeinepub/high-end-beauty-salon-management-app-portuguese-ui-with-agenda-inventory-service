@@ -1,15 +1,27 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T23:53:08.279Z",
-  "summary": "Diff implements both requested UX additions: a prominent \"Nails Designer\" quick filter on the Services Catalog page using existing client-side name/description filtering with an active state and one-tap clear, and a preset entry point in the existing Add Service dialog that pre-fills only the service name as \"Nails Designer\" while leaving price/duration unchanged and still submitting via the existing addService mutation.",
+  "generatedAt": "2026-02-16T01:45:02.910Z",
+  "summary": "The diff implements the requested admin credential change end-to-end: backend default password is now exactly \"joana 123\" and backend comparison preserves internal spaces; the frontend hook trims only leading/trailing whitespace (preserving internal spaces) before calling `verifyAdminLogin`.",
   "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.86,
+  "hallucinated_features": [
+    {
+      "description": "Introduced a backend state migration module and wired `backend/main.mo` to use it to overwrite `adminPassword` to \"joana 123\" on migration.",
+      "reason": "The BuildRequest allowed adding `backend/migration.mo` only if strictly required for upgrades, but no requirement explicitly requested adding/wiring a migration system; this is additional implementation beyond the stated requirements.",
+      "evidence": [
+        "backend/migration.mo",
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "confidence": 0.83,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/servicos/ServiceFormDialog.tsx",
-    "frontend/src/pages/CatalogoDeServicosPage.tsx",
+    "frontend/src/components/admin/AdminPasswordDialog.tsx",
+    "frontend/src/hooks/useAdminPasswordGate.ts",
+    "frontend/src/pages/AdminLoginPage.tsx",
     "project_state.json"
   ]
 }

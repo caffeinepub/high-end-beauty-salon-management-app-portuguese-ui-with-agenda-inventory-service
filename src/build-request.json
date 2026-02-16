@@ -1,57 +1,69 @@
 {
   "kind": "build_request",
-  "title": "Add 'Nails Designer' support as a first-class service discovery & creation path",
+  "title": "Accept admin password with internal space for verifyLogin",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-18",
-      "text": "Add a dedicated, prominent 'Nails Designer' quick filter on the Services Catalog page that, when selected, filters the list to services matching nails/manicure terms and clearly indicates the filter is active (with a one-tap way to clear it).",
-      "target": "frontend",
+      "id": "REQ-33",
+      "text": "Update the admin credential validation so that username \"joana\" and password \"joana 123\" (with a single internal space) are treated as valid credentials end-to-end (frontend verifyLogin -> backend verifyAdminLogin).",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-7"
+          "msg-9"
         ],
         "quotes": [
-          "Tem como adicionar nails Designer"
+          "altere o arquivo useAdminPasswordGate.ts para que o usuário 'joana' e a senha 'joana 123' (com o espaço entre o nome e o número) sejam considerados válidos."
         ]
       },
       "acceptanceCriteria": [
-        "On the Services Catalog page, there is a visible quick filter labeled \"Nails Designer\".",
-        "Tapping the quick filter updates the visible service list using the existing client-side filtering (name/description) without requiring backend changes.",
-        "The UI shows the filter is active (e.g., selected pill state) and provides a single tap to clear/reset back to the unfiltered list.",
-        "No changes are made to the bottom tab bar (it remains exactly 4 tabs)."
+        "Calling frontend `verifyLogin('joana', 'joana 123')` returns `true`.",
+        "Logging in via the Admin Login form using username \"joana\" and password \"joana 123\" succeeds and sets the validated admin session state.",
+        "The backend method `verifyAdminLogin('joana', 'joana 123')` returns `true`."
       ]
     },
     {
-      "id": "REQ-19",
-      "text": "Allow creating a 'Nails Designer' service faster by adding an optional preset entry point from the existing 'Add Service' flow that pre-fills the service name with 'Nails Designer' (leaving duration/price to be entered by the admin).",
+      "id": "REQ-34",
+      "text": "Ensure the credential normalization in `frontend/src/hooks/useAdminPasswordGate.ts` does not remove or collapse internal whitespace in the password; it may only trim leading/trailing whitespace before calling `actor.verifyAdminLogin`.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-7"
+          "msg-9"
         ],
         "quotes": [
-          "Tem como adicionar nails Designer"
+          "Certifique-se de que a lógica de comparação não ignore o espaço na senha e retorne true quando esses dados forem inseridos."
         ]
       },
       "acceptanceCriteria": [
-        "From the Service creation dialog, the admin can trigger a preset that fills the Name field with \"Nails Designer\".",
-        "The preset does not auto-fill price or duration (admin must still provide valid values per existing validation).",
-        "Submitting the form creates the service using the existing addService mutation and it appears in the Services Catalog list afterward."
+        "`useAdminPasswordGate.verifyLogin` must not apply any normalization that removes internal spaces (e.g., no regex that strips `\\s` globally).",
+        "`verifyLogin('joana', 'joana 123')` succeeds, while `verifyLogin('joana', 'joana123')` does not succeed (space is significant).",
+        "`verifyLogin(' joana ', ' joana 123 ')` succeeds (leading/trailing whitespace is still trimmed)."
+      ]
+    },
+    {
+      "id": "REQ-35",
+      "text": "Update the backend stored admin password default in `backend/main.mo` to exactly \"joana 123\" (including the internal space) so that `verifyAdminLogin` compares against the new intended password without ignoring spaces.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-9"
+        ],
+        "quotes": [
+          "o usuário 'joana' e a senha 'joana 123' (com o espaço entre o nome e o número) sejam considerados válidos"
+        ]
+      },
+      "acceptanceCriteria": [
+        "`adminPassword` is set to the exact string \"joana 123\" in the backend.",
+        "`verifyAdminLogin` performs a direct equality comparison that preserves internal spaces (no whitespace stripping on the backend)."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/components/ui (read-only).",
-    "Do not modify any files listed in frontend.immutablePaths.",
-    "Keep backend architecture as a single Motoko actor; do not introduce additional backend services.",
-    "Do not change the fixed bottom navigation to add a 5th tab (it must remain exactly 4 tabs).",
-    "User-facing text in this build request is English (implementation UI language may remain Portuguese per app requirements)."
+    "Do not edit files under `frontend/src/components/ui` or any other paths listed in `frontend.immutablePaths`.",
+    "Keep all Motoko logic within the single main actor (`backend/main.mo`); only add `backend/migration.mo` if strictly required for state upgrades."
   ],
   "nonGoals": [
-    "Do not implement a new standalone 'Nails Designer' page or a new bottom navigation destination.",
-    "Do not add third-party integrations (booking platforms, payments, messaging, etc.).",
-    "Do not change the backend Service schema (e.g., adding a category field) as part of this request."
+    "Adding new authentication providers or changing the existing admin-gate architecture beyond updating the accepted credential value.",
+    "Implementing password hashing or additional security mechanisms."
   ],
   "imageRequirements": {
     "required": [],

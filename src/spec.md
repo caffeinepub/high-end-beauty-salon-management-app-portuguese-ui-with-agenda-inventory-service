@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add “Nails Designer” as a first-class, fast path for discovering relevant services and quickly creating a Nails Designer service from the existing add-service flow.
+**Goal:** Allow the admin login to accept the password `joana 123` (with a single internal space) end-to-end, without collapsing internal whitespace during credential checks.
 
 **Planned changes:**
-- Add a prominent “Nails Designer” quick filter on the Services Catalog page that filters services via existing client-side name/description matching for nails/manicure terms.
-- Show a clear active/selected state for the quick filter and provide a one-tap way to clear/reset back to the unfiltered list.
-- Add an optional preset entry point in the existing “Add Service” flow that pre-fills the Name field with “Nails Designer” while leaving price and duration empty for the admin to complete.
-- Keep the bottom tab bar unchanged (remain exactly 4 tabs) and avoid backend/schema changes.
+- Update `frontend/src/hooks/useAdminPasswordGate.ts` so `verifyLogin` trims only leading/trailing whitespace and preserves internal spaces when calling `actor.verifyAdminLogin`.
+- Ensure the frontend login flow treats `('joana', 'joana 123')` as valid and `('joana', 'joana123')` as invalid (space remains significant).
+- Update `backend/main.mo` to set the default stored `adminPassword` to the exact string `joana 123` and ensure `verifyAdminLogin` compares via direct equality without stripping/collapsing whitespace.
 
-**User-visible outcome:** Users can quickly filter the Services Catalog to nails-related services with a dedicated “Nails Designer” filter and admins can create a “Nails Designer” service faster using a preset that pre-fills the service name.
+**User-visible outcome:** Admins can successfully log in using username `joana` and password `joana 123` (including the internal space), including when accidental leading/trailing spaces are present.

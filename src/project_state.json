@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 7,
+  "projectStateVersion": 15,
   "summary": "High-end beauty salon management app in Portuguese with an elegant luxury dark-mode gold/black aesthetic, featuring a conversion-focused home screen (carousel + category grid + WhatsApp CTA) and simplified internal management: appointment agenda, inventory (admin-only card UI), service catalog with pricing, client loyalty/preferences, portfolio photo uploads, client status updates, and a basic expenses dashboard (entradas vs. saídas).",
   "architectural_notes": [
     "UI/UX must be elegant and sophisticated using a gold, black, and white color palette.",
@@ -10,12 +10,17 @@
     "Typography direction: modern clean fonts (e.g., Montserrat or Poppins); bold headings.",
     "Home feed/portfolio imagery should be displayed as high-res cards with rounded corners (radius 16).",
     "Navigation: bottom navbar with 4 icons (Início, Serviços, Agendamentos, Perfil).",
-    "Inventory UI constraint: admin-only access; prefer card-based layout (not tables) with quick-adjust action per product."
+    "Inventory UI constraint: admin-only access; prefer card-based layout (not tables) with quick-adjust action per product.",
+    "Admin access UX: Profile page must show a highly visible 'ACESSAR ADM' button at the top that gates access to Admin pages (Controle de Estoque, Controle de Gastos) behind an admin password prompt.",
+    "Admin access UX update: replace/rename the Profile top admin entry button to exactly 'PAINEL DO DONO' (must be physically visible on the Profile screen) and route it to 'Controle de Estoque'."
   ],
   "known_issues": [
-    "Deployment/domain configuration errors: domain name must be 5–50 characters and contain only letters, numbers, and hyphens (previous attempted domains failed validation)."
+    "Deployment/domain configuration errors: domain name must be 5–50 characters and contain only letters, numbers, and hyphens (previous attempted domains failed validation).",
+    "Profile page: 'Área Administrativa' button is not appearing for the salon owner (admin entry point missing/hidden).",
+    "Admin login: credentials (joana/joana123) are being rejected with 'senha errada' (login flow failing).",
+    "Admin login: verifyLogin in hooks/useAdminPasswordGate.ts is not accepting the intended credentials when the password includes an internal space ('joana 123')."
   ],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-create-the-core-app-navigation-and-information-architecture-with-4-primary-sections-1-agenda-de-hoje-for-daily-appointments-2-controle-de-estoque-for-professional-product-inventory-3-cat-logo-de-servi-os-for-services-and-prices-and-4-fidelidade-clientes-for-client-profiles-and-preferences-all-user-facing-ui-copy-must-be-in-portuguese",
@@ -152,6 +157,102 @@
         "REQ-19"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-a-highly-visible-button-labeled-exactly-acessar-adm-at-the-top-of-the-profile-page-currently-implemented-by-frontend-src-pages-fidelidadeclientespage-tsx-this-button-must-be-visible-even-when-useadmin-returns-false-so-the-salon-owner-is-never-blocked-by-the-missing-hidden-rea-administrativa-section",
+      "title": "Add a highly visible button labeled exactly \"ACESSAR ADM\" at the top of the Profile page (currently implemented by `frontend/src/pages/FidelidadeClientesPage.tsx`). This button must be visible even when `useAdmin()` returns false, so the salon owner is never blocked by the missing/hidden \"Área Administrativa\" section.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-when-the-user-taps-acessar-adm-show-an-admin-password-prompt-and-only-proceed-after-successful-password-validation-after-validation-navigate-to-an-admin-landing-screen-that-provides-access-to-both-controle-de-estoque-and-controle-de-gastos-using-the-existing-navigation-mechanism-in-frontend-src-app-tsx-i-e-to-the-existing-inventory-and-expenses-pages",
+      "title": "When the user taps \"ACESSAR ADM\", show an admin password prompt and only proceed after successful password validation. After validation, navigate to an Admin landing screen that provides access to both \"Controle de Estoque\" and \"Controle de Gastos\" (using the existing navigation mechanism in `frontend/src/App.tsx`, i.e., to the existing `inventory` and `expenses` pages).",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-consistent-admin-gate-to-both-admin-pages-inventory-and-expenses-so-that-they-require-a-the-existing-admin-privilege-check-iscalleradmin-and-b-the-new-successful-password-validation-session-to-render-their-content-if-the-gate-is-not-satisfied-show-an-access-denied-state-and-do-not-render-admin-functionality",
+      "title": "Add a consistent admin gate to both admin pages (Inventory and Expenses) so that they require (a) the existing admin privilege check (`isCallerAdmin`) and (b) the new successful password validation session to render their content. If the gate is not satisfied, show an access-denied state and do not render admin functionality.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-profile-page-frontend-src-pages-fidelidadeclientespage-tsx-to-physically-render-a-highly-visible-button-labeled-exactly-painel-do-dono-at-the-very-top-of-the-page-above-other-content-and-ensure-it-is-always-visible-regardless-of-useadmin-admin-status-loading",
+      "title": "Update the Profile page (`frontend/src/pages/FidelidadeClientesPage.tsx`) to physically render a highly visible button labeled exactly \"PAINEL DO DONO\" at the very top of the page (above other content) and ensure it is always visible regardless of `useAdmin()` / admin status/loading.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-dedicated-admin-area-login-screen-new-page-component-that-prompts-for-username-and-password-and-validates-the-credentials-exactly-as-username-joana-and-password-joana123-the-painel-do-dono-button-must-navigate-to-this-login-screen-when-the-admin-session-is-not-validated",
+      "title": "Create a dedicated Admin Area login screen (new page component) that prompts for username and password and validates the credentials exactly as: Username \"joana\" and Password \"joana123\". The \"PAINEL DO DONO\" button must navigate to this login screen when the admin session is not validated.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-a-successful-admin-login-the-painel-do-dono-button-must-navigate-directly-to-the-inventory-page-controle-de-estoque-inventory-if-the-session-is-already-validated-tapping-the-button-should-immediately-navigate-to-inventory-without-re-prompting-for-credentials",
+      "title": "After a successful admin login, the \"PAINEL DO DONO\" button must navigate directly to the Inventory page (\"Controle de Estoque\" / `inventory`). If the session is already validated, tapping the button should immediately navigate to `inventory` without re-prompting for credentials.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enforce-that-both-admin-pages-inventory-frontend-src-pages-controledeestoquepage-tsx-and-expenses-frontend-src-pages-expensesdashboardpage-tsx-remain-inaccessible-unless-1-the-caller-is-an-admin-iscalleradmin-via-useadmin-and-2-the-admin-session-is-validated-via-the-login-flow-if-either-condition-is-not-met-show-the-existing-access-denied-auth-required-states-and-do-not-render-admin-functionality",
+      "title": "Enforce that both admin pages—Inventory (`frontend/src/pages/ControleDeEstoquePage.tsx`) and Expenses (`frontend/src/pages/ExpensesDashboardPage.tsx`)—remain inaccessible unless (1) the caller is an admin (`isCallerAdmin` via `useAdmin`) AND (2) the admin session is validated via the login flow. If either condition is not met, show the existing access-denied/auth-required states and do not render admin functionality.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-navigation-in-frontend-src-app-tsx-to-support-the-new-admin-login-screen-as-a-routable-pageview-and-wire-the-profile-painel-do-dono-button-flow-accordingly-profile-admin-login-when-not-validated-profile-inventory-when-validated",
+      "title": "Update navigation in `frontend/src/App.tsx` to support the new Admin Login screen as a routable `PageView`, and wire the Profile \"PAINEL DO DONO\" button flow accordingly (Profile -> Admin Login when not validated; Profile -> Inventory when validated).",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-admin-credential-verification-accepts-the-intended-credentials-even-when-the-user-accidentally-enters-leading-trailing-whitespace-by-normalizing-trim-username-and-password-before-calling-actor-verifyadminlogin-in-the-admin-login-flow-frontend-src-pages-adminloginpage-tsx-and-in-the-admin-password-dialog-flow-frontend-src-components-admin-adminpassworddialog-tsx",
+      "title": "Ensure admin credential verification accepts the intended credentials even when the user accidentally enters leading/trailing whitespace by normalizing (trim) username and password before calling `actor.verifyAdminLogin` in the admin login flow (`frontend/src/pages/AdminLoginPage.tsx`) and in the admin password dialog flow (`frontend/src/components/admin/AdminPasswordDialog.tsx`).",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-centralize-credential-normalization-in-frontend-src-hooks-useadminpasswordgate-ts-so-any-caller-of-verifylogin-username-password-automatically-trims-the-inputs-before-sending-them-to-actor-verifyadminlogin-preventing-future-regressions-and-ensuring-consistent-behavior-across-all-login-entry-points",
+      "title": "Centralize credential normalization in `frontend/src/hooks/useAdminPasswordGate.ts` so any caller of `verifyLogin(username, password)` automatically trims the inputs before sending them to `actor.verifyAdminLogin`, preventing future regressions and ensuring consistent behavior across all login entry points.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-credential-validation-so-that-username-joana-and-password-joana-123-with-a-single-internal-space-are-treated-as-valid-credentials-end-to-end-frontend-verifylogin-backend-verifyadminlogin",
+      "title": "Update the admin credential validation so that username \"joana\" and password \"joana 123\" (with a single internal space) are treated as valid credentials end-to-end (frontend verifyLogin -> backend verifyAdminLogin).",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-credential-normalization-in-frontend-src-hooks-useadminpasswordgate-ts-does-not-remove-or-collapse-internal-whitespace-in-the-password-it-may-only-trim-leading-trailing-whitespace-before-calling-actor-verifyadminlogin",
+      "title": "Ensure the credential normalization in `frontend/src/hooks/useAdminPasswordGate.ts` does not remove or collapse internal whitespace in the password; it may only trim leading/trailing whitespace before calling `actor.verifyAdminLogin`.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -229,6 +330,56 @@
       "id": "AR-18",
       "summary": "Adicionar suporte a “Nails Designer” (unha/serviços de manicure) no app",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-23",
+      "summary": "Implement backend support for validating an admin password so the frontend can confirm the password without hardcoding the password in the UI bundle. Add a canister method to verify an admin password attempt, and persist the admin password (or a derived representation) in stable state so it survives upgrades.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Add a visible top-of-Profile owner button labeled 'PAINEL DO DONO' that navigates to 'Controle de Estoque'",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Create an Admin Area login screen (Usuário: joana / Senha: joana123) and only after successful login allow access to 'Controle de Estoque' and 'Controle de Gastos'",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Implement backend support for verifying the admin login credentials (username + password) without trapping for non-admin callers, so the login screen can validate credentials without requiring the caller to already have admin privileges. Credentials must be exactly: username \"joana\" and password \"joana123\".",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Persist the admin login secret(s) across upgrades in the single Motoko actor (`backend/main.mo`) so that admin login security does not reset on redeploy/upgrade. If a migration is required to preserve or initialize state, add `backend/migration.mo` per the project migration policy.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "Update verifyLogin in hooks/useAdminPasswordGate.ts to accept credentials username 'joana' and password 'joana 123' (with the internal space) as valid, ensuring comparison preserves internal spaces and returns true for this exact input.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "Update the backend stored admin password default in `backend/main.mo` to exactly \"joana 123\" (including the internal space) so that `verifyAdminLogin` compares against the new intended password without ignoring spaces.",
+      "reqIds": [
+        "REQ-35"
+      ],
       "status": "pending"
     }
   ],

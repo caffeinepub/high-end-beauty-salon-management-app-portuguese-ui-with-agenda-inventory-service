@@ -180,6 +180,11 @@ export const idlService = IDL.Service({
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'setServiceStatus' : IDL.Func([ServiceID, IDL.Bool], [], []),
+  'updateAdminCredentials' : IDL.Func(
+      [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text), IDL.Opt(IDL.Text)],
+      [],
+      [],
+    ),
   'updateLoyaltyPoints' : IDL.Func([ClientID, IDL.Nat], [], []),
   'updateProductQuantity' : IDL.Func([ProductID, IDL.Float64], [], []),
   'updateTransaction' : IDL.Func(
@@ -187,6 +192,7 @@ export const idlService = IDL.Service({
       [],
       [],
     ),
+  'verifyAdminLogin' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], ['query']),
 });
 
 export const idlInitArgs = [];
@@ -364,6 +370,11 @@ export const idlFactory = ({ IDL }) => {
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'setServiceStatus' : IDL.Func([ServiceID, IDL.Bool], [], []),
+    'updateAdminCredentials' : IDL.Func(
+        [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text), IDL.Opt(IDL.Text)],
+        [],
+        [],
+      ),
     'updateLoyaltyPoints' : IDL.Func([ClientID, IDL.Nat], [], []),
     'updateProductQuantity' : IDL.Func([ProductID, IDL.Float64], [], []),
     'updateTransaction' : IDL.Func(
@@ -371,6 +382,7 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
+    'verifyAdminLogin' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], ['query']),
   });
 };
 

@@ -134,12 +134,17 @@ export interface _SERVICE {
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'setServiceStatus' : ActorMethod<[ServiceID, boolean], undefined>,
+  'updateAdminCredentials' : ActorMethod<
+    [string, [] | [string], [] | [string], [] | [string]],
+    undefined
+  >,
   'updateLoyaltyPoints' : ActorMethod<[ClientID, bigint], undefined>,
   'updateProductQuantity' : ActorMethod<[ProductID, number], undefined>,
   'updateTransaction' : ActorMethod<
     [bigint, number, string, boolean, string],
     undefined
   >,
+  'verifyAdminLogin' : ActorMethod<[string, string], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

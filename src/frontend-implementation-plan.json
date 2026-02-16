@@ -1,38 +1,47 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Nails Designer quick filter + preset creation in Services flow",
+  "title": "Preserve internal whitespace for admin password validation (joana / joana 123)",
   "requirements": [
     {
-      "id": "REQ-18",
-      "summary": "Add a prominent 'Nails Designer' quick filter on the Services Catalog page with active state indication and one-tap clear/reset, using existing client-side filtering logic.",
+      "id": "REQ-33",
+      "summary": "Ensure the admin login flow accepts username \"joana\" with password \"joana 123\" (single internal space) and correctly sets the validated admin session state.",
       "acceptanceCriteria": [
-        "On the Services Catalog page, there is a visible quick filter labeled \"Nails Designer\".",
-        "Tapping the quick filter updates the visible service list using the existing client-side filtering (name/description) without requiring backend changes.",
-        "The UI shows the filter is active (e.g., selected pill state) and provides a single tap to clear/reset back to the unfiltered list.",
-        "No changes are made to the bottom tab bar (it remains exactly 4 tabs)."
+        "Calling frontend `verifyLogin('joana', 'joana 123')` returns `true`.",
+        "Logging in via the Admin Login form using username \"joana\" and password \"joana 123\" succeeds and sets the validated admin session state.",
+        "The backend method `verifyAdminLogin('joana', 'joana 123')` returns `true`."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/CatalogoDeServicosPage.tsx",
+          "path": "frontend/src/pages/AdminLoginPage.tsx",
           "operation": "modify",
-          "description": "Add a dedicated quick-filter control labeled \"Nails Designer\" near the existing search UI; introduce local state to track when the quick filter is active; apply an additional client-side match against nails/manicure-related keywords using the existing name/description string matching approach; render a clear/reset affordance (single tap) when active and a visually distinct selected state when enabled. Verify the component's usage instructions before implementing."
+          "description": "Adjust admin form submission handling (and any local normalization) to preserve internal whitespace in the password while still trimming leading/trailing whitespace before calling `useAdminPasswordGate.verifyLogin`."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminPasswordDialog.tsx",
+          "operation": "modify",
+          "description": "Ensure the admin credential dialog preserves internal whitespace in the password while still trimming only leading/trailing whitespace before calling `useAdminPasswordGate.verifyLogin`."
+        },
+        {
+          "path": "frontend/src/hooks/useAdminPasswordGate.ts",
+          "operation": "modify",
+          "description": "Confirm end-to-end `verifyLogin` passes the password through without collapsing/removing internal whitespace, and that successful verification persists validated state in session storage."
         }
       ]
     },
     {
-      "id": "REQ-19",
-      "summary": "Add an optional preset action inside the existing Add Service dialog to prefill the service name with 'Nails Designer' without prefilling duration or price.",
+      "id": "REQ-34",
+      "summary": "Update `useAdminPasswordGate` credential normalization to only trim leading/trailing whitespace and never remove/collapse internal whitespace in the password.",
       "acceptanceCriteria": [
-        "From the Service creation dialog, the admin can trigger a preset that fills the Name field with \"Nails Designer\".",
-        "The preset does not auto-fill price or duration (admin must still provide valid values per existing validation).",
-        "Submitting the form creates the service using the existing addService mutation and it appears in the Services Catalog list afterward."
+        "`useAdminPasswordGate.verifyLogin` must not apply any normalization that removes internal spaces (e.g., no regex that strips `\\s` globally).",
+        "`verifyLogin('joana', 'joana 123')` succeeds, while `verifyLogin('joana', 'joana123')` does not succeed (space is significant).",
+        "`verifyLogin(' joana ', ' joana 123 ')` succeeds (leading/trailing whitespace is still trimmed)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/servicos/ServiceFormDialog.tsx",
+          "path": "frontend/src/hooks/useAdminPasswordGate.ts",
           "operation": "modify",
-          "description": "Add a small optional preset entry point within the dialog (e.g., a button/secondary action) that sets only the Name field to \"Nails Designer\" while leaving description/duration/price unchanged; ensure existing validation remains enforced and submission continues to use the existing addService mutation + query invalidation so the new service appears in the catalog afterward. Verify the component's usage instructions before implementing."
+          "description": "Implement/keep a strict normalization approach that uses only `trim()` for username/password (no global whitespace replacement) before calling `actor.verifyAdminLogin`, explicitly preserving internal spaces in the password."
         }
       ]
     }

@@ -1,12 +1,12 @@
 {
   "frontend/src/index.css": "Global styles with luxury dark theme (near-black backgrounds, metallic gold accents), Montserrat/Poppins typography, 16px border radius, and texture overlay utility.",
-  "frontend/src/App.tsx": "Main app component managing navigation between 6 pages (home, services, appointments, profile, inventory, expenses) with toast notifications.",
+  "frontend/src/App.tsx": "Main app component managing navigation between 8 pages (home, services, appointments, profile, admin, admin-login, inventory, expenses) with toast notifications.",
   "frontend/src/components/layout/AppLayout.tsx": "Mobile-first app shell with brand header, fixed bottom navigation bar (4 primary tabs: Home, Services, Appointments, Profile), WhatsApp floating button, and responsive footer.",
   "frontend/src/components/brand/BrandHeader.tsx": "Header component displaying salon monogram and wordmark logos from static assets with elegant styling.",
   "frontend/src/pages/AgendaDeHojePage.tsx": "Daily appointment management page with date navigation, appointment list, and create dialog; removed selectedDate prop from AppointmentFormDialog.",
-  "frontend/src/pages/ControleDeEstoquePage.tsx": "Inventory page displaying products as card grid with search, low-stock filter, and quick adjust actions.",
+  "frontend/src/pages/ControleDeEstoquePage.tsx": "Inventory page wrapped in AdminAccessGate, displaying products as card grid with search, low-stock filter, and quick adjust actions.",
   "frontend/src/pages/CatalogoDeServicosPage.tsx": "Service catalog page with vertical card list, search functionality, \"Nails Designer\" quick filter button with active state and clear action, admin toggle controls, and appointment scheduling.",
-  "frontend/src/pages/FidelidadeClientesPage.tsx": "Profile/clients page with admin section (Inventory and Expenses navigation), client list, and detail panel; imports Client type from useClientes hook.",
+  "frontend/src/pages/FidelidadeClientesPage.tsx": "Profile/clients page with always-visible \"PAINEL DO DONO\" button at top that routes to admin login or inventory based on validation state, plus client list with search and detail panel.",
   "frontend/src/components/agenda/AppointmentFormDialog.tsx": "Modal form for creating appointments with optional preselected service, client/service selection, date/time pickers, and notes field.",
   "frontend/src/components/agenda/AppointmentListItem.tsx": "Card component displaying appointment details including time, client, service, status badge, and notes.",
   "frontend/src/components/estoque/ProductFormDialog.tsx": "Modal form for adding new products to inventory with validation for all required fields including quantity and minimum threshold.",
@@ -28,8 +28,13 @@
   "frontend/src/components/estoque/ProductCard.tsx": "Product card component showing thumbnail, name/brand, quantity with unit, low-stock badge, and Quick Adjust button.",
   "frontend/src/hooks/useAdmin.ts": "React Query hook checking if current caller is admin via backend isCallerAdmin method.",
   "frontend/src/hooks/useTransactions.ts": "React Query hooks for fetching transactions, monthly aggregates, and mutations (add/update/delete transactions).",
-  "frontend/src/pages/ExpensesDashboardPage.tsx": "Admin-only expenses dashboard with monthly Income vs. Expenses bar chart and transaction entry form.",
+  "frontend/src/pages/ExpensesDashboardPage.tsx": "Expenses dashboard wrapped in AdminAccessGate, showing monthly income vs expenses chart and transaction entry form.",
   "frontend/src/components/expenses/IncomeVsExpensesBarChart.tsx": "Bar chart component rendering monthly income and expenses data with Recharts, styled with luxury dark theme gold accents.",
   "frontend/src/components/expenses/TransactionForm.tsx": "Form component for adding transactions with amount, type (income/expense), category, and description fields.",
-  "frontend/tailwind.config.js": "Tailwind configuration with OKLCH color system, Montserrat/Poppins font family, and 16px default border radius for luxury aesthetic."
+  "frontend/tailwind.config.js": "Tailwind configuration with OKLCH color system, Montserrat/Poppins font family, and 16px default border radius for luxury aesthetic.",
+  "frontend/src/hooks/useAdminPasswordGate.ts": "Hook for managing admin login validation state using sessionStorage and backend verifyAdminLogin method; uses trim() to remove only leading/trailing whitespace while preserving internal spaces in passwords.",
+  "frontend/src/components/admin/AdminPasswordDialog.tsx": "Modal dialog component for admin login with username and password fields, error handling, loading states, and success callback navigation; normalizes inputs with trim() to preserve internal spaces.",
+  "frontend/src/components/admin/AdminAccessGate.tsx": "Wrapper component that enforces both admin role and login validation before rendering protected content; shows appropriate access-denied or authentication-required messages in English.",
+  "frontend/src/pages/AdminLandingPage.tsx": "Admin landing page with two prominent cards linking to Inventory and Expenses management, wrapped in AdminAccessGate for protection.",
+  "frontend/src/pages/AdminLoginPage.tsx": "Dedicated admin login page with username and password fields that validates credentials via backend and redirects to inventory on success; normalizes inputs with trim() to preserve internal spaces."
 }

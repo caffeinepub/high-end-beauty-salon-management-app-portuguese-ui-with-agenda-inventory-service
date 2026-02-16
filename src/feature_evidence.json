@@ -2,10 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-dedicated-prominent-nails-designer-quick-filter-on-the-services-catalog-page-that-when-selected-filters-the-list-to-services-matching-nails-manicure-terms-and-clearly-indicates-the-filter-is-active-with-a-one-tap-way-to-clear-it",
-      "featureTitle": "Add a dedicated, prominent 'Nails Designer' quick filter on the Services Catalog page that, when selected, filters the list to services matching nails/manicure terms and clearly indicates the filter is active (with a one-tap way to clear it).",
+      "featureId": "feature-update-the-admin-credential-validation-so-that-username-joana-and-password-joana-123-with-a-single-internal-space-are-treated-as-valid-credentials-end-to-end-frontend-verifylogin-backend-verifyadminlogin",
+      "featureTitle": "Update the admin credential validation so that username \"joana\" and password \"joana 123\" (with a single internal space) are treated as valid credentials end-to-end (frontend verifyLogin -> backend verifyAdminLogin).",
       "files": [
-        "frontend/src/pages/CatalogoDeServicosPage.tsx"
+        "frontend/src/components/admin/AdminPasswordDialog.tsx",
+        "frontend/src/hooks/useAdminPasswordGate.ts",
+        "frontend/src/pages/AdminLoginPage.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -17,15 +19,15 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-18"
+        "REQ-33"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-allow-creating-a-nails-designer-service-faster-by-adding-an-optional-preset-entry-point-from-the-existing-add-service-flow-that-pre-fills-the-service-name-with-nails-designer-leaving-duration-price-to-be-entered-by-the-admin",
-      "featureTitle": "Allow creating a 'Nails Designer' service faster by adding an optional preset entry point from the existing 'Add Service' flow that pre-fills the service name with 'Nails Designer' (leaving duration/price to be entered by the admin).",
+      "featureId": "feature-ensure-the-credential-normalization-in-frontend-src-hooks-useadminpasswordgate-ts-does-not-remove-or-collapse-internal-whitespace-in-the-password-it-may-only-trim-leading-trailing-whitespace-before-calling-actor-verifyadminlogin",
+      "featureTitle": "Ensure the credential normalization in `frontend/src/hooks/useAdminPasswordGate.ts` does not remove or collapse internal whitespace in the password; it may only trim leading/trailing whitespace before calling `actor.verifyAdminLogin`.",
       "files": [
-        "frontend/src/components/servicos/ServiceFormDialog.tsx"
+        "frontend/src/hooks/useAdminPasswordGate.ts"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -37,7 +39,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-19"
+        "REQ-34"
       ],
       "confidence": "high"
     }

@@ -10,14 +10,17 @@ import Int "mo:core/Int";
 import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
-
-
+(with migration = Migration.run)
 actor {
   // Initialize the access control system
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
   include MixinStorage();
+
+  var adminUsername : Text = "joana";
+  var adminPassword : Text = "joana 123";
 
   var productIdCounter = 0;
   var serviceIdCounter = 0;
@@ -122,6 +125,44 @@ actor {
   let appointments = Map.empty<AppointmentID, Appointment>();
   let portfolioPhotos = Map.empty<Text, PortfolioPhoto>();
   let transactions = Map.empty<Nat, Transaction>();
+
+  // Password & Admin Functions
+  public query ({ caller }) func verifyAdminLogin(
+    username : Text,
+    password : Text,
+  ) : async Bool {
+    username == adminUsername and password == adminPassword;
+  };
+
+  public shared ({ caller }) func updateAdminCredentials(
+    currentPassword : Text,
+    newUsername : ?Text,
+    newPassword : ?Text,
+    confirmPassword : ?Text,
+  ) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update admin credentials");
+    };
+
+    if (currentPassword != adminPassword) {
+      Runtime.trap("Current password is incorrect");
+    };
+
+    switch (newUsername) {
+      case (?username) { adminUsername := username };
+      case (null) {};
+    };
+
+    switch (newPassword, confirmPassword) {
+      case (?password, ?confirm) {
+        if (password != confirm) {
+          Runtime.trap("New password and confirmation do not match");
+        };
+        adminPassword := password;
+      };
+      case (_) {};
+    };
+  };
 
   // User Profile Management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {

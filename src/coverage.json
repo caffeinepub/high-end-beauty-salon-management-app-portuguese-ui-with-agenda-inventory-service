@@ -1,46 +1,60 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T23:53:08.282Z",
+  "generatedAt": "2026-02-16T01:45:02.914Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
+    "total": 3,
     "implemented": 2,
     "items": [
       {
-        "id": "REQ-18",
-        "summary": "Add a dedicated, prominent 'Nails Designer' quick filter on the Services Catalog page that, when selected, filters the list to services matching nails/manicure terms and clearly indicates the filter is active (with a one-tap way to clear it).",
+        "id": "REQ-33",
+        "summary": "Update the admin credential validation so that username \"joana\" and password \"joana 123\" (with a single internal space) are treated as valid credentials end-to-end (frontend verifyLogin -> backend verifyAdminLogin).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/CatalogoDeServicosPage.tsx"
+          "frontend/src/pages/AdminLoginPage.tsx",
+          "frontend/src/components/admin/AdminPasswordDialog.tsx",
+          "frontend/src/hooks/useAdminPasswordGate.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/CatalogoDeServicosPage.tsx"
+          "frontend/src/pages/AdminLoginPage.tsx",
+          "frontend/src/components/admin/AdminPasswordDialog.tsx",
+          "frontend/src/hooks/useAdminPasswordGate.ts"
         ]
       },
       {
-        "id": "REQ-19",
-        "summary": "Allow creating a 'Nails Designer' service faster by adding an optional preset entry point from the existing 'Add Service' flow that pre-fills the service name with 'Nails Designer' (leaving duration/price to be entered by the admin).",
+        "id": "REQ-34",
+        "summary": "Ensure the credential normalization in `frontend/src/hooks/useAdminPasswordGate.ts` does not remove or collapse internal whitespace in the password; it may only trim leading/trailing whitespace before calling `actor.verifyAdminLogin`.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/servicos/ServiceFormDialog.tsx"
+          "frontend/src/hooks/useAdminPasswordGate.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/servicos/ServiceFormDialog.tsx"
+          "frontend/src/hooks/useAdminPasswordGate.ts"
         ]
+      },
+      {
+        "id": "REQ-35",
+        "summary": "Update the backend stored admin password default in `backend/main.mo` to exactly \"joana 123\" (including the internal space) so that `verifyAdminLogin` compares against the new intended password without ignoring spaces.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/servicos/ServiceFormDialog.tsx",
-    "frontend/src/pages/CatalogoDeServicosPage.tsx",
+    "frontend/src/components/admin/AdminPasswordDialog.tsx",
+    "frontend/src/hooks/useAdminPasswordGate.ts",
+    "frontend/src/pages/AdminLoginPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

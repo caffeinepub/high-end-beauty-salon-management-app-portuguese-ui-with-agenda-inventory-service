@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Users as UsersIcon, Package, DollarSign } from 'lucide-react';
+import { Plus, Search, Users as UsersIcon, Crown } from 'lucide-react';
 import { useClientes, type Client } from '../hooks/useClientes';
 import { ClientFormDialog } from '../components/clientes/ClientFormDialog';
 import { ClientDetailPanel } from '../components/clientes/ClientDetailPanel';
-import { useAdmin } from '../hooks/useAdmin';
+import { useAdminPasswordGate } from '../hooks/useAdminPasswordGate';
 import { type PageView } from '../App';
 
 interface FidelidadeClientesPageProps {
@@ -19,12 +19,22 @@ export function FidelidadeClientesPage({ onNavigate }: FidelidadeClientesPagePro
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   const { clients, isLoading } = useClientes();
-  const { isAdmin, isLoading: isAdminLoading } = useAdmin();
+  const { isValidated } = useAdminPasswordGate();
 
   const filteredClients = clients.filter((client) =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.contactInfo.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleOwnerPanelClick = () => {
+    if (isValidated) {
+      // Already validated, go directly to inventory
+      onNavigate('inventory');
+    } else {
+      // Not validated, go to login page
+      onNavigate('admin-login');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -42,41 +52,32 @@ export function FidelidadeClientesPage({ onNavigate }: FidelidadeClientesPagePro
         </Button>
       </div>
 
-      {/* Admin Section */}
-      {!isAdminLoading && isAdmin && (
-        <Card className="border-primary/30 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="text-lg">Área Administrativa</CardTitle>
-            <CardDescription>Acesso exclusivo para administradores</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                className="justify-start gap-3 h-auto py-4"
-                onClick={() => onNavigate('inventory')}
-              >
-                <Package className="h-5 w-5" />
-                <div className="text-left">
-                  <div className="font-semibold">Controle de Estoque</div>
-                  <div className="text-xs text-muted-foreground">Gerencie produtos</div>
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                className="justify-start gap-3 h-auto py-4"
-                onClick={() => onNavigate('expenses')}
-              >
-                <DollarSign className="h-5 w-5" />
-                <div className="text-left">
-                  <div className="font-semibold">Controle de Gastos</div>
-                  <div className="text-xs text-muted-foreground">Entradas e saídas</div>
-                </div>
-              </Button>
+      {/* Owner Panel Button - Always visible at top */}
+      <Card className="border-primary bg-gradient-to-r from-primary/10 to-primary/5">
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-full bg-primary/20">
+                <Crown className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">Owner Access</h3>
+                <p className="text-sm text-muted-foreground">
+                  Exclusive access to inventory and financial management
+                </p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <Button
+              size="lg"
+              onClick={handleOwnerPanelClick}
+              className="gap-2 font-bold min-w-[200px]"
+            >
+              <Crown className="h-5 w-5" />
+              PAINEL DO DONO
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Clients List */}
